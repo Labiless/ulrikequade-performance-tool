@@ -47,7 +47,10 @@ export default function Home() {
       <BrandHeader />
       <div className={styles.titleRow}>
         <h1>Shows</h1>
-        <NewShowButton />
+        <div className={styles.titleActions}>
+          <Link href="/tutorial">How to use the tool</Link>
+          <NewShowButton />
+        </div>
       </div>
       <Suspense fallback={<p>Loading…</p>}>
         <ShowList />

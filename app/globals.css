@@ -72,6 +72,13 @@ h5 {
   line-height: 1.15;
 }
 
+/* Colroy has a single weight: let the browser synthesise bold/italic, as on ulrikequade.nl */
+strong,
+b {
+  font-weight: 700;
+  font-synthesis: weight style;
+}
+
 button,
 input,
 select {
