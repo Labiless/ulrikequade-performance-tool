@@ -1,4 +1,4 @@
-/* QR a tutto schermo, su bianco per la massima leggibilità */
+/* Full-screen QR on white for maximum readability */
 .screen {
   min-height: 100dvh;
   display: flex;

@@ -1,4 +1,4 @@
-/* Pagina del pubblico: nera e poco luminosa, per non disturbare la sala */
+/* Audience page: black and dim, so it doesn't disturb the auditorium */
 .screen {
   min-height: 100dvh;
   display: flex;
@@ -59,7 +59,7 @@
   cursor: default;
 }
 
-/* Onda che parte dal bordo a ogni tocco: conferma visiva discreta */
+/* Ripple from the edge on every tap: discreet visual feedback */
 .pulse {
   position: absolute;
   inset: -2px;

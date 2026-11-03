@@ -12,7 +12,7 @@ type Props = {
 
 const POLL_MS = 3000;
 
-/** QR + link per il pubblico e numero di persone connesse (aggiornato ogni 3 s). */
+/** QR + link for the audience and number of people joined (refreshed every 3 s). */
 export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Props) {
   const [count, setCount] = useState(initialCount);
   const [copied, setCopied] = useState(false);
@@ -26,7 +26,7 @@ export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Prop
         const data = (await res.json()) as { count: number };
         if (!cancelled) setCount(data.count);
       } catch {
-        // rete assente: riproviamo al giro successivo
+        // no network: try again on the next round
       }
     };
     const id = setInterval(poll, POLL_MS);
@@ -42,7 +42,7 @@ export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Prop
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      window.prompt("Copia il link:", url);
+      window.prompt("Copy the link:", url);
     }
   };
 
@@ -50,7 +50,7 @@ export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Prop
     <aside className={styles.aside}>
       <div className={styles.audience}>
         <span className={styles.audienceCount}>{count}</span>
-        <span className={styles.label}>{count === 1 ? "persona connessa" : "persone connesse"}</span>
+        <span className={styles.label}>{count === 1 ? "person joined" : "people joined"}</span>
       </div>
 
       <a
@@ -58,15 +58,15 @@ export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Prop
         target="_blank"
         rel="noopener"
         className={styles.qr}
-        title="Apri il QR in grande"
-        aria-label="Apri il QR code in grande in una nuova scheda"
+        title="Open the QR code full size"
+        aria-label="Open the QR code full size in a new tab"
         dangerouslySetInnerHTML={{ __html: qrSvg }}
       />
 
       <div className={styles.linkRow}>
         <input className={styles.linkInput} value={url} readOnly onFocus={(e) => e.currentTarget.select()} />
         <button type="button" className={styles.ghost} onClick={copy}>
-          {copied ? "Copiato ✓" : "Copia"}
+          {copied ? "Copied ✓" : "Copy"}
         </button>
       </div>
     </aside>

@@ -1,6 +1,6 @@
-// Popola il database con dati di prova: 1 show, 20 persone, click casuali
-// distribuiti su 10 minuti, con qualche "picco" di vita percepita.
-// Uso: npm run db:seed
+// Fills the database with test data: 1 show, 20 people, random clicks
+// spread over 10 minutes, with a few "peaks" of perceived life.
+// Usage: npm run db:seed
 import { db } from "./index";
 import { clicks, sessions, shows } from "./schema";
 
@@ -13,7 +13,7 @@ async function main() {
 
   const [show] = await db
     .insert(shows)
-    .values({ name: "Show di prova", isOpen: true })
+    .values({ name: "Test show", isOpen: true })
     .returning();
 
   const people = await db
@@ -23,7 +23,7 @@ async function main() {
 
   const rows: (typeof clicks.$inferInsert)[] = [];
   for (const person of people) {
-    // qualche click sparso
+    // a few scattered clicks
     for (let i = 0; i < 3; i++) {
       rows.push({
         showId: show.id,
@@ -31,7 +31,7 @@ async function main() {
         clientTs: new Date(start + Math.random() * DURATION_MS),
       });
     }
-    // click vicino ai picchi (non tutti cliccano a ogni picco)
+    // clicks near the peaks (not everyone clicks at every peak)
     for (const peak of PEAKS_MS) {
       if (Math.random() < 0.7) {
         rows.push({
@@ -44,7 +44,7 @@ async function main() {
   }
   await db.insert(clicks).values(rows);
 
-  console.log(`Creato show "${show.name}" (${show.id}): ${people.length} sessioni, ${rows.length} click`);
+  console.log(`Created show "${show.name}" (${show.id}): ${people.length} sessions, ${rows.length} clicks`);
 }
 
 main().catch((err) => {

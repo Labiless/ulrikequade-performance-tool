@@ -1,7 +1,7 @@
-# Database locale per lo sviluppo.
-# - postgres: un Postgres normale (stessa major version di Neon)
-# - neon-proxy: espone Postgres via HTTP come fa Neon, così l'app usa
-#   lo stesso driver (@neondatabase/serverless) in locale e in produzione.
+# Local database for development.
+# - postgres: a regular Postgres (same major version as Neon)
+# - neon-proxy: exposes Postgres over HTTP like Neon does, so the app uses
+#   the same driver (@neondatabase/serverless) locally and in production.
 services:
   postgres:
     image: postgres:17

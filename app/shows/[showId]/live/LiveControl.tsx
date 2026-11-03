@@ -35,21 +35,21 @@ export default function LiveControl({
   const router = useRouter();
   const [sync, setSync] = useState<ClockSync | null>(null);
   const [now, setNow] = useState<number | null>(null);
-  // Istante di partenza deciso localmente: serve per il countdown prima che il server risponda
+  // Start moment decided locally: drives the countdown before the server responds
   const [plannedStart, setPlannedStart] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Istante di stop deciso localmente: blocca subito il cronometro, senza aspettare il server
+  // Stop moment decided locally: freezes the stopwatch at once, without waiting for the server
   const [localEnd, setLocalEnd] = useState<number | null>(null);
   const endedAt = savedEnd ?? localEnd;
   const [pending, startTransition] = useTransition();
 
-  // Sincronizza l'orologio col server all'apertura e poi ogni 5 minuti
+  // Sync the clock with the server on open and then every 5 minutes
   useEffect(() => {
     let cancelled = false;
     const run = () =>
       syncClock()
         .then((s) => !cancelled && setSync(s))
-        .catch(() => !cancelled && setError("Impossibile sincronizzare l'orologio col server."));
+        .catch(() => !cancelled && setError("Couldn't sync the clock with the server."));
     run();
     const id = setInterval(run, RESYNC_MS);
     return () => {
@@ -58,7 +58,7 @@ export default function LiveControl({
     };
   }, []);
 
-  // Orologio: ora del server, aggiornata a ogni frame
+  // Clock: server time, updated every frame
   useEffect(() => {
     if (!sync) return;
     let raf = 0;
@@ -70,7 +70,7 @@ export default function LiveControl({
     return () => cancelAnimationFrame(raf);
   }, [sync]);
 
-  // Tiene lo schermo acceso (questo dispositivo fa anche da ciak per la videocamera)
+  // Keeps the screen on (this device also serves as the clapperboard for the camera)
   useWakeLock();
 
   const start = startedAt ?? plannedStart;
@@ -93,14 +93,14 @@ export default function LiveControl({
         await startShow(showId, at);
       } catch {
         setPlannedStart(null);
-        setError("Errore nell'avvio dello show. Riprova.");
+        setError("Error starting the show. Please try again.");
       }
     });
   };
 
   const onStop = () => {
     if (now === null) return;
-    if (!window.confirm("Fermare lo show? Non si potrà riavviare.")) return;
+    if (!window.confirm("Stop the show? It can't be restarted.")) return;
     const at = now;
     setLocalEnd(at);
     setError(null);
@@ -110,7 +110,7 @@ export default function LiveControl({
         router.push(`/shows/${showId}`);
       } catch {
         setLocalEnd(null);
-        setError("Errore nello stop dello show. Riprova.");
+        setError("Error stopping the show. Please try again.");
       }
     });
   };
@@ -125,12 +125,12 @@ export default function LiveControl({
   return (
     <main className={`${styles.screen} ${flash ? styles.flash : ""}`}>
       <header className={styles.header}>
-        <Link href="/shows" className={styles.back}>
-          ← Show
+        <Link href="/" className={styles.back}>
+          ← Shows
         </Link>
         <span className={styles.name}>{name}</span>
         <button type="button" className={styles.ghost} onClick={toggleFullscreen}>
-          Schermo intero
+          Full screen
         </button>
       </header>
 
@@ -143,7 +143,7 @@ export default function LiveControl({
               onClick={onStart}
               disabled={!sync || pending}
             >
-              {sync ? "Start" : "Sincronizzo…"}
+              {sync ? "Start" : "Syncing…"}
             </button>
           )}
 
@@ -153,14 +153,14 @@ export default function LiveControl({
 
           {(phase === "running" || phase === "ended") && now !== null && start !== null && (
             <>
-              <div className={styles.label}>Durata show</div>
+              <div className={styles.label}>Show duration</div>
               <div className={styles.stopwatch}>{formatDuration((endedAt ?? now) - start)}</div>
             </>
           )}
 
           {phase === "ended" && (
             <p className={styles.ended}>
-              Show concluso · <Link href={`/shows/${showId}`}>vai alla timeline dei click</Link>
+              Show ended · <Link href={`/shows/${showId}`}>go to the click timeline</Link>
             </p>
           )}
 
@@ -174,9 +174,9 @@ export default function LiveControl({
 
       <footer className={styles.footer}>
         <div>
-          <div className={styles.label}>Ora server</div>
+          <div className={styles.label}>Server time</div>
           <div className={styles.clock}>{now !== null ? formatClock(now) : "--:--:--.-"}</div>
-          {sync && <div className={styles.sync}>sincronizzato ±{Math.round(sync.uncertainty)} ms</div>}
+          {sync && <div className={styles.sync}>synced ±{Math.round(sync.uncertainty)} ms</div>}
         </div>
 
         {phase === "running" && (

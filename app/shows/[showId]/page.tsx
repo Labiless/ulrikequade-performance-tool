@@ -23,7 +23,7 @@ async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
     db.$count(sessions, eq(sessions.showId, showId)),
   ]);
 
-  // Al client passiamo solo numeri: tempo in ms + indice compatto della persona.
+  // Only numbers go to the client: time in ms + a compact index for the person.
   const sessionIndex = new Map<string, number>();
   const points: ClickPoint[] = rows.map((r) => {
     let s = sessionIndex.get(r.sessionId);
@@ -38,7 +38,7 @@ async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
     <>
       <h1>{show.name}</h1>
       <p>
-        {points.length} click · {audience} persone connesse
+        {points.length} clicks · {audience} people joined
       </p>
       <ClickTimeline
         showId={show.id}
@@ -55,9 +55,9 @@ export default function ShowPage(props: PageProps<"/shows/[showId]">) {
   return (
     <main style={{ padding: "16px 16px 48px", maxWidth: 1400, margin: "0 auto" }}>
       <p>
-        <Link href="/shows">← Tutti gli show</Link>
+        <Link href="/">← All shows</Link>
       </p>
-      <Suspense fallback={<p>Caricamento…</p>}>
+      <Suspense fallback={<p>Loading…</p>}>
         <ShowView params={props.params} />
       </Suspense>
     </main>

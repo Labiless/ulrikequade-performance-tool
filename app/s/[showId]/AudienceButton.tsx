@@ -13,13 +13,13 @@ type Props = {
   endedAt: number | null;
 };
 
-const POLL_BEFORE_START_MS = 2000; // prima dello show: controlla spesso, per attivarsi in tempo
-const POLL_DURING_MS = 5000; // durante: serve solo a sapere quando finisce
-const FLUSH_MS = 3000; // ogni quanto riprovare l'invio dei click in coda
+const POLL_BEFORE_START_MS = 2000; // before the show: check often, to enable on time
+const POLL_DURING_MS = 5000; // during: only needed to know when it ends
+const FLUSH_MS = 3000; // how often to retry sending queued clicks
 const RESYNC_MS = 5 * 60 * 1000;
 const MAX_BATCH = 200;
 
-// --- localStorage, protetto: in navigazione privata può non funzionare ---
+// --- localStorage, guarded: it may not work in private browsing ---
 function load(key: string) {
   try {
     return localStorage.getItem(key);
@@ -45,11 +45,11 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
   const [now, setNow] = useState<number | null>(null);
   const [pulse, setPulse] = useState(0);
 
-  // Coda dei click non ancora confermati dal server (timestamp in ora server)
+  // Queue of clicks not yet confirmed by the server (timestamps in server time)
   const queue = useRef<number[]>([]);
   const sending = useRef(false);
 
-  // 1. Registrazione del telefono (riusa la sessione salvata se c'è)
+  // 1. Register the phone (reuses the saved session if there is one)
   useEffect(() => {
     if (initialEnd !== null) return;
     let cancelled = false;
@@ -65,7 +65,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
     };
   }, [showId, sessionKey, initialEnd]);
 
-  // 2. Sincronizzazione dell'orologio col server
+  // 2. Sync the clock with the server
   useEffect(() => {
     let cancelled = false;
     const run = () =>
@@ -80,7 +80,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
     };
   }, []);
 
-  // 3. Ora server corrente (serve per attivare il bottone esattamente all'inizio)
+  // 3. Current server time (used to enable the button exactly at the start)
   useEffect(() => {
     if (!sync) return;
     const tick = () => setNow(Date.now() + sync.offset);
@@ -89,7 +89,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
     return () => clearInterval(id);
   }, [sync]);
 
-  // 4. Stato dello show: inizio e fine decisi dalla regia
+  // 4. Show status: start and end are set from the control room
   const notStarted = startedAt === null;
   const ended = endedAt !== null;
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
         setStartedAt(data.startedAt);
         setEndedAt(data.endedAt);
       } catch {
-        // rete assente: riproviamo al giro successivo
+        // no network: try again on the next round
       }
     };
     const id = setInterval(check, notStarted ? POLL_BEFORE_START_MS : POLL_DURING_MS);
@@ -113,14 +113,14 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
     };
   }, [showId, notStarted, ended]);
 
-  // 5. Invio dei click in coda
+  // 5. Send queued clicks
   const persistQueue = useCallback(() => save(queueKey, JSON.stringify(queue.current)), [queueKey]);
 
   const flush = useCallback(async () => {
     if (sending.current || !sessionId) return;
     sending.current = true;
     try {
-      // Manda a blocchi finché la coda non è vuota (di solito basta un giro)
+      // Send in batches until the queue is empty (usually one round is enough)
       while (queue.current.length > 0) {
         const batch = queue.current.slice(0, MAX_BATCH);
         const res = await fetch(`/api/shows/${showId}/clicks`, {
@@ -128,20 +128,20 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId, clicks: batch }),
         });
-        // 5xx = errore temporaneo del server: riproviamo più tardi
+        // 5xx = temporary server error: retry later
         if (res.status >= 500) break;
-        // 2xx = salvati (o scartati perché fuori dallo show); 4xx = non riproponibili
+        // 2xx = saved (or dropped because outside the show); 4xx = not retryable
         queue.current = queue.current.slice(batch.length);
         persistQueue();
       }
     } catch {
-      // rete assente: restano in coda
+      // no network: they stay in the queue
     } finally {
       sending.current = false;
     }
   }, [sessionId, showId, persistQueue]);
 
-  // Recupera click rimasti in coda (es. pagina chiusa senza rete) e riprova periodicamente
+  // Restore clicks left in the queue (e.g. page closed while offline) and retry periodically
   useEffect(() => {
     try {
       const stored = JSON.parse(load(queueKey) ?? "[]");
@@ -153,7 +153,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
     if (!sessionId) return;
     flush();
     const id = setInterval(flush, FLUSH_MS);
-    // Chiusura della pagina: ultimo tentativo che il browser completa anche dopo la chiusura
+    // Page closing: one last attempt that the browser completes even after the page is gone
     const onHide = () => {
       if (queue.current.length === 0) return;
       const body = new Blob([JSON.stringify({ sessionId, clicks: queue.current.slice(0, MAX_BATCH) })], {
@@ -184,11 +184,11 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
   };
 
   let message: string;
-  if (ended) message = "Lo spettacolo è concluso. Grazie!";
-  else if (joinError) message = "Connessione non riuscita. Ricarica la pagina.";
-  else if (!sessionId || !sync) message = "Connessione…";
-  else if (!active) message = "Lo spettacolo non è ancora iniziato";
-  else message = "Tocca il cerchio quando percepisci vita sul palco";
+  if (ended) message = "The performance has ended. Thank you!";
+  else if (joinError) message = "Connection failed. Please reload the page.";
+  else if (!sessionId || !sync) message = "Connecting…";
+  else if (!active) message = "The performance hasn't started yet";
+  else message = "Tap the circle whenever you perceive life on stage";
 
   return (
     <main className={styles.screen}>
@@ -200,7 +200,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
         disabled={!active}
         onPointerDown={onPress}
         onContextMenu={(e) => e.preventDefault()}
-        aria-label="Percepisco vita"
+        aria-label="I perceive life"
       >
         {pulse > 0 && <span key={pulse} className={styles.pulse} aria-hidden />}
       </button>

@@ -23,7 +23,7 @@
   width: 120px;
 }
 
-/* Lo "stage" è sempre scuro: è uno schermo video, indipendente dal tema */
+/* The "stage" is always dark: it is a video screen, regardless of theme */
 .stage {
   --stage-text: #f0efec;
   --stage-text-secondary: #c3c2b7;
@@ -73,7 +73,7 @@
   cursor: pointer;
 }
 
-/* Il grafico sta in sovraimpressione nella parte bassa del video e fa da timeline */
+/* The chart is overlaid on the bottom of the video and doubles as the timeline */
 .chart {
   position: absolute;
   left: 0;
@@ -192,9 +192,9 @@
   cursor: pointer;
 }
 
-/* --- Modalità sincronizzazione --- */
+/* --- Sync mode --- */
 
-/* Strato sopra il video che riceve il trascinamento */
+/* Layer above the video that receives the drag */
 .dragLayer {
   position: absolute;
   inset: 0 0 auto 0;

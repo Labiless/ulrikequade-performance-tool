@@ -11,23 +11,23 @@ export default function NewShowButton() {
   return (
     <>
       <button type="button" className={styles.primary} onClick={() => dialogRef.current?.showModal()}>
-        + Nuovo show
+        + New show
       </button>
 
       <dialog ref={dialogRef} className={styles.dialog}>
         <form action={action} className={styles.form}>
-          <h2>Nuovo show</h2>
+          <h2>New show</h2>
           <label className={styles.field}>
-            Nome
-            <input name="name" required maxLength={200} autoFocus placeholder="es. Amsterdam – 14 novembre" />
+            Name
+            <input name="name" required maxLength={200} autoFocus placeholder="e.g. Amsterdam – 14 November" />
           </label>
           {state.error && <p className={styles.error}>{state.error}</p>}
           <div className={styles.actions}>
             <button type="button" className={styles.secondary} onClick={() => dialogRef.current?.close()}>
-              Annulla
+              Cancel
             </button>
             <button type="submit" className={styles.primary} disabled={pending}>
-              {pending ? "Creo…" : "Crea show"}
+              {pending ? "Creating…" : "Create show"}
             </button>
           </div>
         </form>

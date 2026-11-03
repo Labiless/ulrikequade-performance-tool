@@ -35,7 +35,7 @@ async function Live({ params }: { params: Promise<{ showId: string }> }) {
 
 export default function LivePage(props: PageProps<"/shows/[showId]/live">) {
   return (
-    <Suspense fallback={<p style={{ padding: 24 }}>Caricamento…</p>}>
+    <Suspense fallback={<p style={{ padding: 24 }}>Loading…</p>}>
       <Live params={props.params} />
     </Suspense>
   );

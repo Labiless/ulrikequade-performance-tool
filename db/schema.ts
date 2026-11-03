@@ -9,18 +9,18 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-// Una replica dello spettacolo. Ogni show ha il suo QR (/s/<id>).
+// One performance of the show. Each show has its own QR code (/s/<id>).
 export const shows = pgTable("shows", {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   isOpen: boolean("is_open").notNull().default(false),
-  // Ora del server in cui lo show è partito (fine del countdown) e terminato.
+  // Server time at which the show started (end of the countdown) and ended.
   startedAt: timestamp("started_at", { withTimezone: true, precision: 3 }),
   endedAt: timestamp("ended_at", { withTimezone: true, precision: 3 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Un telefono connesso (anonimo). Serve anche per sapere quante persone c'erano.
+// A joined phone (anonymous). Also tells us how many people were there.
 export const sessions = pgTable(
   "sessions",
   {
@@ -34,9 +34,9 @@ export const sessions = pgTable(
   (t) => [index("sessions_show_idx").on(t.showId)],
 );
 
-// Un click "percepisco vita".
-// clientTs = ora del click sul telefono, già corretta con l'offset dal server.
-// serverTs = ora in cui il server ha ricevuto il click (solo per controllo).
+// An "I perceive life" click.
+// clientTs = time of the click on the phone, already corrected with the server offset.
+// serverTs = time the server received the click (for checking only).
 export const clicks = pgTable(
   "clicks",
   {
@@ -52,7 +52,7 @@ export const clicks = pgTable(
   },
   (t) => [
     index("clicks_show_ts_idx").on(t.showId, t.clientTs),
-    // Se un telefono reinvia lo stesso click (es. risposta persa per la rete), non viene duplicato
+    // If a phone re-sends the same click (e.g. response lost on the network), it isn't duplicated
     uniqueIndex("clicks_session_ts_uq").on(t.sessionId, t.clientTs),
   ],
 );

@@ -1,4 +1,4 @@
-/* Schermata di regia: sempre scura, a tutto schermo, leggibile anche da lontano */
+/* Control-room screen: always dark, full screen, readable from a distance */
 .screen {
   --live-bg: #000;
   --live-text: #f0efec;
@@ -16,7 +16,7 @@
   padding: 16px;
 }
 
-/* Lampo bianco all'istante di partenza: è il riferimento per sincronizzare il video */
+/* White flash at the start moment: the reference for syncing the video */
 .flash {
   --live-bg: #fff;
   color: #000;
@@ -87,7 +87,7 @@
   line-height: 1;
 }
 
-/* QR su fondo bianco: serve contrasto per essere letto dalle fotocamere */
+/* QR on a white background: cameras need the contrast to read it */
 .qr {
   display: block;
   width: 100%;

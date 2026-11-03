@@ -7,11 +7,11 @@ import { sessions, shows } from "@/db/schema";
 import { isUuid } from "@/lib/uuid";
 
 /**
- * Registra un telefono del pubblico. Se il telefono ha già una sessione
- * valida per questo show (salvata nel browser), la riusa invece di crearne una nuova.
+ * Registers an audience phone. If the phone already has a valid session
+ * for this show (saved in the browser), it is reused instead of creating a new one.
  */
 export async function joinShow(showId: string, existingSessionId: string | null) {
-  if (!isUuid(showId)) throw new Error("Show non valido");
+  if (!isUuid(showId)) throw new Error("Invalid show");
 
   if (existingSessionId && isUuid(existingSessionId)) {
     const [existing] = await db
@@ -22,7 +22,7 @@ export async function joinShow(showId: string, existingSessionId: string | null)
   }
 
   const [show] = await db.select({ endedAt: shows.endedAt }).from(shows).where(eq(shows.id, showId));
-  if (!show) throw new Error("Show non trovato");
+  if (!show) throw new Error("Show not found");
   if (show.endedAt) return null;
 
   const userAgent = (await headers()).get("user-agent")?.slice(0, 500) ?? null;

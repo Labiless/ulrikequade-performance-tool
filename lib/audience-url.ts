@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "[::1]"]);
 const IPV4_RE = /^\d{1,3}(\.\d{1,3}){3}$/;
 
-/** Primo indirizzo IPv4 del computer nella rete locale (es. 192.168.1.20), se c'è. */
+/** First IPv4 address of this computer on the local network (e.g. 192.168.1.20), if any. */
 function lanIp() {
   for (const addresses of Object.values(networkInterfaces())) {
     for (const a of addresses ?? []) {
@@ -16,11 +16,11 @@ function lanIp() {
 }
 
 /**
- * URL pubblico della pagina del pubblico per uno show.
- * - Se c'è APP_URL (es. in produzione) usa quella.
- * - Altrimenti usa l'host con cui è stata aperta la regia; se è localhost,
- *   lo sostituisce con l'IP del computer in rete, così il QR funziona
- *   anche dai telefoni connessi allo stesso Wi-Fi.
+ * Public URL of the audience page for a show.
+ * - If APP_URL is set (e.g. in production), use it.
+ * - Otherwise use the host the control room was opened with; if it's localhost,
+ *   replace it with this computer's network IP, so the QR also works
+ *   from phones on the same Wi-Fi.
  */
 export async function audienceUrl(showId: string) {
   let base = process.env.APP_URL;

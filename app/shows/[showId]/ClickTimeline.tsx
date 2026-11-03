@@ -4,14 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } 
 import styles from "./timeline.module.css";
 import VideoSync from "./VideoSync";
 
-/** t = timestamp del click (ms epoch), s = indice della persona che ha cliccato */
+/** t = click timestamp (ms epoch), s = index of the person who clicked */
 export type ClickPoint = { t: number; s: number };
 
 type Props = {
   showId: string;
   clicks: ClickPoint[];
   audience: number;
-  /** inizio/fine dello show (ora server, ms). null se lo show non è stato avviato dalla regia */
+  /** show start/end (server time, ms). null if the show was not started from the control room */
   startedAt: number | null;
   endedAt: number | null;
 };
@@ -34,15 +34,15 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
   const [offsetSec, setOffsetSec] = useState(0);
   const [hoverBin, setHoverBin] = useState<number | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  // Modalità sincronizzazione: si cerca nel video il lampo di inizio show
+  // Sync mode: look for the show-start flash in the video
   const [syncing, setSyncing] = useState(false);
   const [videoKey, setVideoKey] = useState<string | null>(null);
   const pendingSeek = useRef<number | null>(null);
   const savedOffset = useRef<number | null>(null);
-  // true se questo video è già stato sincronizzato (si può annullare una nuova ricerca)
+  // true if this video has already been synced (a new search can be cancelled)
   const [hasSync, setHasSync] = useState(false);
 
-  // Dimensioni del grafico (si adatta allo schermo)
+  // Chart size (adapts to the screen)
   useEffect(() => {
     const el = chartRef.current;
     if (!el) return;
@@ -53,14 +53,14 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     return () => ro.disconnect();
   }, []);
 
-  // Libera l'URL del video quando cambia file
+  // Release the video URL when the file changes
   useEffect(() => {
     return () => {
       if (videoUrl) URL.revokeObjectURL(videoUrl);
     };
   }, [videoUrl]);
 
-  // Aggiorna la testina in modo fluido mentre il video scorre
+  // Move the playhead smoothly while the video plays
   useEffect(() => {
     if (!playing) return;
     let raf = 0;
@@ -72,7 +72,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     return () => cancelAnimationFrame(raf);
   }, [playing]);
 
-  // Sposta il video; se sta ancora cercando il fotogramma precedente, accoda l'ultima richiesta
+  // Seek the video; if it's still seeking the previous frame, queue the latest request
   const seekTo = useCallback((sec: number) => {
     const v = videoRef.current;
     if (!v) return;
@@ -104,7 +104,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     setVideoDuration(null);
     setCurrentTime(0);
     if (saved !== null) setOffsetSec(saved);
-    // Video già sincronizzato in passato su questo computer: si salta la ricerca del lampo
+    // Video already synced on this computer before: skip the flash search
     setHasSync(saved !== null);
     setSyncing(saved === null);
   };
@@ -124,9 +124,9 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     }
   }, [syncStorageKey]);
 
-  // Riferimento = inizio dello show (il lampo bianco della regia), oppure il primo click
-  // se lo show non è stato avviato dalla regia. offsetSec = in quale secondo del video
-  // avviene il riferimento: il secondo 0 della timeline coincide con il secondo 0 del video.
+  // Reference = show start (the white flash from the control room), or the first click
+  // if the show was not started from the control room. offsetSec = the video second at which
+  // the reference happens: second 0 of the timeline matches second 0 of the video.
   const reference = startedAt ?? clicks[0]?.t ?? 0;
   const end = endedAt ?? clicks[clicks.length - 1]?.t ?? reference;
   const t0 = reference - offsetSec * 1000;
@@ -155,7 +155,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     return { bins, maxCount: Math.max(1, ...counts), outside };
   }, [clicks, t0, binSec, durationSec]);
 
-  // Geometria del grafico
+  // Chart geometry
   const plotW = Math.max(0, size.width - PAD.left - PAD.right);
   const plotH = Math.max(0, size.height - PAD.top - PAD.bottom);
   const yMax = niceMax(maxCount);
@@ -179,7 +179,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
   const ticks: number[] = [];
   for (let s = 0; s <= durationSec; s += tickStep) ticks.push(s);
 
-  // Interazione: hover mostra i valori, click sposta il video in quel punto
+  // Interaction: hover shows the values, click seeks the video to that point
   const secFromPointer = (e: PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const px = e.clientX - rect.left - PAD.left;
@@ -199,7 +199,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     <section className={styles.wrapper}>
       <div className={styles.controls}>
         <label className={styles.control}>
-          Video della performance
+          Performance video
           <input
             type="file"
             accept="video/*"
@@ -211,11 +211,11 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
         </label>
         {videoUrl && !syncing && (
           <button type="button" className={styles.secondaryButton} onClick={() => setSyncing(true)}>
-            Risincronizza video
+            Re-sync video
           </button>
         )}
         <label className={styles.control}>
-          Intervallo
+          Interval
           <select value={binSec} onChange={(e) => setBinSec(Number(e.target.value))}>
             {BIN_OPTIONS.map((s) => (
               <option key={s} value={s}>
@@ -225,7 +225,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
           </select>
         </label>
         <label className={styles.control}>
-          {startedAt !== null ? "Inizio show al secondo del video" : "Primo click al secondo del video"}
+          {startedAt !== null ? "Show start at video second" : "First click at video second"}
           <input
             type="number"
             step={0.04}
@@ -243,7 +243,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
             src={videoUrl}
             onLoadedMetadata={(e) => {
               setVideoDuration(e.currentTarget.duration);
-              // Video già sincronizzato: parte dall'inizio dello show
+              // Video already synced: start from the beginning of the show
               if (savedOffset.current !== null) seekTo(savedOffset.current);
             }}
             onPlay={() => setPlaying(true)}
@@ -260,7 +260,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
             playsInline
           />
         ) : (
-          <div className={styles.placeholder}>Carica il video della performance per vederlo qui</div>
+          <div className={styles.placeholder}>Load the performance video to watch it here</div>
         )}
 
         {videoUrl && syncing && (
@@ -277,7 +277,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
 
         {videoUrl && !syncing && (
           <button type="button" className={styles.playButton} onClick={togglePlay}>
-            {playing ? "❚❚ Pausa" : "▶ Play"} · {formatTime(currentTime)} / {formatTime(durationSec)}
+            {playing ? "❚❚ Pause" : "▶ Play"} · {formatTime(currentTime)} / {formatTime(durationSec)}
           </button>
         )}
 
@@ -288,11 +288,11 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
           onPointerLeave={() => setHoverBin(null)}
           onPointerDown={onPointerDown}
           role="img"
-          aria-label={`Click nel tempo, raggruppati ogni ${binSec} secondi. Massimo ${maxCount} click in un intervallo.`}
+          aria-label={`Clicks over time, grouped every ${binSec} seconds. At most ${maxCount} clicks in one interval.`}
         >
           {size.width > 0 && (
             <svg width={size.width} height={size.height} className={styles.svg}>
-              {/* griglia orizzontale + etichette asse y */}
+              {/* horizontal grid + y-axis labels */}
               {[0, yMax / 2, yMax].map((v) => (
                 <g key={v}>
                   <line x1={PAD.left} x2={PAD.left + plotW} y1={y(v)} y2={y(v)} className={styles.grid} />
@@ -302,7 +302,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
                 </g>
               ))}
 
-              {/* asse x: tempo */}
+              {/* x axis: time */}
               {ticks.map((s) => (
                 <text key={s} x={x(s)} y={size.height - 6} className={styles.xLabel}>
                   {formatTime(s)}
@@ -312,7 +312,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
               <path d={areaPath} className={styles.area} />
               <path d={linePath} className={styles.line} />
 
-              {/* testina del video */}
+              {/* video playhead */}
               {videoUrl && (
                 <line
                   x1={x(currentTime)}
@@ -351,7 +351,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
                 {formatTime(hovered.start)}–{formatTime(hovered.start + binSec)}
               </strong>
               <br />
-              {hovered.count} click · {hovered.people} persone
+              {hovered.count} clicks · {hovered.people} people
               {audience > 0 && ` (${Math.round((hovered.people / audience) * 100)}%)`}
             </div>
           )}
@@ -360,19 +360,19 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
 
       {outside > 0 && (
         <p className={styles.note}>
-          {outside} click cadono fuori dalla durata del video e non sono mostrati.
+          {outside} clicks fall outside the video&apos;s duration and are not shown.
         </p>
       )}
 
       <details className={styles.table}>
-        <summary>Tabella dati</summary>
+        <summary>Data table</summary>
         <table>
           <thead>
             <tr>
-              <th>Da</th>
-              <th>A</th>
-              <th>Click</th>
-              <th>Persone</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Clicks</th>
+              <th>People</th>
             </tr>
           </thead>
           <tbody>
@@ -401,7 +401,7 @@ function formatTime(totalSec: number) {
   return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
 }
 
-/** Arrotonda il massimo dell'asse y a un numero "pulito" e pari (per avere la metà intera). */
+/** Rounds the y-axis maximum to a "clean" even number (so the midpoint is a whole number). */
 function niceMax(v: number) {
   if (v <= 2) return 2;
   const pow = 10 ** Math.floor(Math.log10(v));

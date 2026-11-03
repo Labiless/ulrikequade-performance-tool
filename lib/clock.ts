@@ -1,13 +1,13 @@
 export type ClockSync = {
-  /** da sommare a Date.now() per ottenere l'ora del server */
+  /** add to Date.now() to get the server time */
   offset: number;
-  /** incertezza stimata in ms (metà del ping migliore) */
+  /** estimated uncertainty in ms (half of the best round trip) */
   uncertainty: number;
 };
 
 /**
- * Stima lo sfasamento tra l'orologio del dispositivo e quello del server.
- * Fa alcuni ping e tiene quello più veloce, che è il più affidabile.
+ * Estimates the offset between the device clock and the server clock.
+ * Sends a few pings and keeps the fastest one, which is the most reliable.
  */
 export async function syncClock(samples = 6): Promise<ClockSync> {
   let best: { rtt: number; offset: number } | null = null;

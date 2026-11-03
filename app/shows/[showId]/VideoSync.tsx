@@ -13,15 +13,15 @@ type Props = {
   onCancel?: () => void;
 };
 
-// Un fotogramma a 30 fps (la maggior parte dei telefoni); a 25 fps si salta poco più
+// One frame at 30 fps (most phones); at 25 fps each step is slightly short of a frame
 const FRAME_SEC = 1 / 30;
-// Trascinando sul video: quanti secondi si spostano per ogni pixel
+// Dragging on the video: how many seconds each pixel moves
 const DRAG_SEC_PER_PX = 0.02;
-const DRAG_FINE_SEC_PER_PX = 0.002; // tenendo premuto Shift o Alt
+const DRAG_FINE_SEC_PER_PX = 0.002; // while holding Shift or Alt
 
 /**
- * Modalità "trova il lampo": si scorre il video trascinando a destra/sinistra
- * (o con slider, frecce e tasti) e si conferma il fotogramma di inizio show.
+ * "Find the flash" mode: scrub the video by dragging left/right
+ * (or with the slider, buttons and keys) and confirm the show-start frame.
  */
 export default function VideoSync({
   currentTime,
@@ -34,7 +34,7 @@ export default function VideoSync({
 }: Props) {
   const drag = useRef<{ x: number; time: number } | null>(null);
 
-  // Tastiera: ←/→ un fotogramma, con Shift un secondo, Invio conferma, Spazio play/pausa
+  // Keyboard: ←/→ one frame, with Shift one second, Enter confirms, Space play/pause
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement && e.target.type !== "range") return;
@@ -75,12 +75,12 @@ export default function VideoSync({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        title="Trascina a destra o sinistra per scorrere il video"
+        title="Drag left or right to scrub the video"
       >
         <div className={styles.syncHint}>
-          Trascina a destra/sinistra fino al <strong>lampo bianco</strong> di inizio show
+          Drag left/right until you reach the <strong>white flash</strong> at the start of the show
           <br />
-          <small>Shift = movimento fine · ←/→ = un fotogramma · Shift+←/→ = un secondo</small>
+          <small>Shift = fine movement · ←/→ = one frame · Shift+←/→ = one second</small>
         </div>
       </div>
 
@@ -93,33 +93,33 @@ export default function VideoSync({
           step={0.001}
           value={currentTime}
           onChange={(e) => onSeek(Number(e.target.value))}
-          aria-label="Posizione nel video"
+          aria-label="Position in the video"
         />
         <div className={styles.syncButtons}>
           <button type="button" onClick={onTogglePlay}>
             {playing ? "❚❚" : "▶"}
           </button>
-          <button type="button" onClick={() => onSeek(currentTime - 1)} title="Indietro di 1 secondo">
+          <button type="button" onClick={() => onSeek(currentTime - 1)} title="Back 1 second">
             −1 s
           </button>
-          <button type="button" onClick={() => onSeek(currentTime - FRAME_SEC)} title="Fotogramma precedente">
+          <button type="button" onClick={() => onSeek(currentTime - FRAME_SEC)} title="Previous frame">
             −1 fr
           </button>
           <span className={styles.syncTime}>{formatPrecise(currentTime)}</span>
-          <button type="button" onClick={() => onSeek(currentTime + FRAME_SEC)} title="Fotogramma successivo">
+          <button type="button" onClick={() => onSeek(currentTime + FRAME_SEC)} title="Next frame">
             +1 fr
           </button>
-          <button type="button" onClick={() => onSeek(currentTime + 1)} title="Avanti di 1 secondo">
+          <button type="button" onClick={() => onSeek(currentTime + 1)} title="Forward 1 second">
             +1 s
           </button>
           <span className={styles.syncSpacer} />
           {onCancel && (
             <button type="button" onClick={onCancel}>
-              Annulla
+              Cancel
             </button>
           )}
           <button type="button" className={styles.confirmButton} onClick={onConfirm}>
-            Conferma inizio show
+            Confirm show start
           </button>
         </div>
       </div>

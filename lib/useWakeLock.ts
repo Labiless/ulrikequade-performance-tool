@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-/** Tiene lo schermo acceso finché `enabled` è true (dove il browser lo supporta). */
+/** Keeps the screen on while `enabled` is true (where the browser supports it). */
 export function useWakeLock(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
