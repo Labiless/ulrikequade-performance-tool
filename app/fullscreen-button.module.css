@@ -1,0 +1,37 @@
+.button {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-primary);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.button:hover,
+.button:focus-visible {
+  opacity: 1;
+}
+
+.button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media print {
+  .button {
+    display: none;
+  }
+}

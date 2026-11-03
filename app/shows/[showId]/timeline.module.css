@@ -90,7 +90,6 @@
   padding: 6px 10px;
   font-family: var(--font-heading-stack);
   font-size: 13px;
-  font-variant-numeric: tabular-nums;
   cursor: pointer;
 }
 
@@ -277,7 +276,6 @@
 .syncButtons button {
   font-family: var(--font-heading-stack);
   font-size: 13px;
-  font-variant-numeric: tabular-nums;
   padding: 6px 10px;
   border-radius: 2px;
   border: 1px solid var(--stage-grid);
@@ -291,7 +289,6 @@
   text-align: center;
   font-family: var(--font-heading-stack);
   font-size: 16px;
-  font-variant-numeric: tabular-nums;
 }
 
 .syncSpacer {

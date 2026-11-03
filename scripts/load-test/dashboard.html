@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Load test · Performance Tool</title>
+    <style>
+      @font-face {
+        font-family: "Pano";
+        src: url("/fonts/Pano-Bold.woff2") format("woff2");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "Colroy";
+        src: url("/fonts/Colroy.woff2") format("woff2");
+      }
+
+      :root {
+        --bg: #000;
+        --surface: #111;
+        --border: #2a2a2a;
+        --text: #fff;
+        --text-2: #b4b4b4;
+        --muted: #969696;
+        --ok: #1baf7a;
+        --bad: #e66767;
+        --heading: "Pano", "Helvetica Neue", Arial, sans-serif;
+        --body: "Colroy", Georgia, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+        font-size: 15px;
+      }
+
+      main {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px 16px 48px;
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px 24px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 16px;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: var(--heading);
+        font-size: 24px;
+      }
+
+      .url {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        word-break: break-all;
+      }
+
+      .label {
+        font-family: var(--heading);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .phase {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--heading);
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        padding: 6px 10px;
+      }
+
+      .phase::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+
+      .phase[data-phase="running"]::before {
+        background: var(--text);
+        animation: blink 1s infinite;
+      }
+
+      .phase[data-phase="done"]::before {
+        background: var(--ok);
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0.2;
+        }
+      }
+
+      .hint {
+        margin: 12px 0 0;
+        color: var(--text-2);
+      }
+
+      /* --- counters + taps/s --- */
+      .bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 12px;
+        margin: 20px 0;
+      }
+
+      .stat .value {
+        font-family: var(--heading);
+        font-size: 28px;
+        line-height: 1.1;
+      }
+
+      .timeline {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .timeline svg {
+        flex: 1;
+        height: 48px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .timeline rect {
+        fill: var(--text);
+      }
+
+      button.action {
+        font-family: var(--heading);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: var(--text);
+        color: var(--bg);
+        border: none;
+        border-radius: 2px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+
+      button.action:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
+
+      /* --- phone grid --- */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+        gap: 8px;
+      }
+
+      .tile {
+        position: relative;
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text-2);
+        font: inherit;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .tile .num {
+        position: absolute;
+        top: 5px;
+        left: 7px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .tile .count {
+        font-family: var(--heading);
+        font-size: 12px;
+      }
+
+      .tile .pending {
+        position: absolute;
+        top: 5px;
+        right: 7px;
+        font-size: 11px;
+        color: var(--bad);
+      }
+
+      .circle {
+        position: relative;
+        width: 46%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 2px solid #333;
+        background: #0a0a0a;
+        transition:
+          border-color 300ms,
+          background-color 120ms,
+          transform 120ms;
+      }
+
+      .tile[data-state="active"] .circle {
+        border-color: var(--text-2);
+        background: #1a1a1a;
+      }
+
+      .tile[data-state="idle"] .circle,
+      .tile[data-state="joining"] .circle {
+        border-style: dashed;
+      }
+
+      .tile[data-state="ended"] {
+        opacity: 0.5;
+      }
+
+      .tile[data-state="error"] {
+        border-color: var(--bad);
+      }
+
+      .tile[data-offline="true"] {
+        border-style: dashed;
+        border-color: var(--bad);
+      }
+
+      .tile[data-offline="true"] .circle {
+        opacity: 0.35;
+      }
+
+      .tile[data-offline="true"]::after {
+        content: "offline";
+        position: absolute;
+        bottom: 5px;
+        font-family: var(--heading);
+        font-size: 9px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--bad);
+      }
+
+      /* tap: the circle is pressed and a ripple leaves its edge */
+      .circle.tap {
+        animation: press 260ms ease-out;
+      }
+
+      .circle.tap::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        border: 2px solid var(--text);
+        animation: ripple 600ms ease-out forwards;
+      }
+
+      @keyframes press {
+        30% {
+          transform: scale(0.85);
+          background: var(--text);
+        }
+      }
+
+      @keyframes ripple {
+        from {
+          transform: scale(1);
+          opacity: 0.9;
+        }
+        to {
+          transform: scale(1.7);
+          opacity: 0;
+        }
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin: 12px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* --- report --- */
+      .report {
+        margin-top: 32px;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+      }
+
+      .report h2 {
+        margin: 0 0 12px;
+        font-family: var(--heading);
+        font-size: 20px;
+      }
+
+      .report table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      .report td {
+        padding: 8px 4px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      .report td:last-child {
+        text-align: right;
+        color: var(--text-2);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .mark {
+        display: inline-block;
+        width: 22px;
+        font-weight: bold;
+      }
+
+      .mark.ok {
+        color: var(--ok);
+      }
+
+      .mark.bad {
+        color: var(--bad);
+      }
+
+      .mark.unknown {
+        color: var(--muted);
+      }
+
+      .disconnected {
+        color: var(--bad);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <div class="label">Load test</div>
+          <h1 id="title">Fake audience</h1>
+          <div class="url" id="url"></div>
+        </div>
+        <div class="phase" id="phase" data-phase="joining">Joining</div>
+      </header>
+      <p class="hint" id="hint">Opening the fake phones…</p>
+
+      <section class="bar">
+        <div class="stat"><div class="label">Joined</div><div class="value" id="s-joined">0</div></div>
+        <div class="stat"><div class="label">Active</div><div class="value" id="s-active">0</div></div>
+        <div class="stat"><div class="label">Taps</div><div class="value" id="s-taps">0</div></div>
+        <div class="stat"><div class="label">Confirmed</div><div class="value" id="s-confirmed">0</div></div>
+        <div class="stat"><div class="label">Pending</div><div class="value" id="s-pending">0</div></div>
+        <div class="stat"><div class="label">Offline</div><div class="value" id="s-offline">0</div></div>
+        <div class="stat"><div class="label">Show time</div><div class="value" id="s-time">–</div></div>
+      </section>
+
+      <section class="timeline">
+        <div class="label">Taps / s<br />last 2 min</div>
+        <svg id="tps" viewBox="0 0 120 10" preserveAspectRatio="none" aria-label="Taps per second"></svg>
+        <button class="action" id="burst" disabled>Burst</button>
+      </section>
+
+      <section class="grid" id="grid"></section>
+      <p class="legend">
+        <span>Dashed circle = joining</span>
+        <span>Dim circle = waiting for start</span>
+        <span>Bright circle = active</span>
+        <span>Red number = taps not yet confirmed</span>
+        <span>Click a phone to take it offline / back online</span>
+      </p>
+
+      <section class="report" id="report" hidden></section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const tiles = new Map();
+      const PHASES = {
+        joining: ["Joining", "Opening the fake phones…"],
+        waiting: ["Waiting for start", "All phones are on the audience page. Press Start in the control room."],
+        running: ["Running", "The phones are tapping. Press Stop in the control room to end the test."],
+        finishing: ["Finishing", "Show stopped. Waiting for the last taps to be delivered…"],
+        done: ["Done", "Test finished – see the report below. Stop the script with Ctrl+C."],
+      };
+
+      function setPhase(phase) {
+        const [label, hint] = PHASES[phase] ?? [phase, ""];
+        $("phase").dataset.phase = phase;
+        $("phase").textContent = label;
+        $("hint").textContent = hint;
+        $("burst").disabled = phase !== "running";
+      }
+
+      function buildGrid(phones) {
+        $("grid").replaceChildren();
+        tiles.clear();
+        for (const p of phones) {
+          const tile = document.createElement("button");
+          tile.className = "tile";
+          tile.title = `Phone #${p.i + 1} – click to toggle offline`;
+          tile.innerHTML = `<span class="num">#${p.i + 1}</span><span class="pending"></span><span class="circle"></span><span class="count">0</span>`;
+          tile.addEventListener("click", () => fetch(`/api/offline/${p.i}`, { method: "POST" }));
+          $("grid").append(tile);
+          tiles.set(p.i, tile);
+          updatePhone(p);
+        }
+      }
+
+      function updatePhone(p) {
+        const tile = tiles.get(p.i);
+        if (!tile) return;
+        tile.dataset.state = p.state;
+        tile.dataset.offline = String(p.offline);
+        tile.querySelector(".count").textContent = `${p.taps} tap${p.taps === 1 ? "" : "s"}`;
+        tile.querySelector(".pending").textContent = p.pending > 0 ? `+${p.pending}` : "";
+        if (p.error) tile.title = `Phone #${p.i + 1}: ${p.error}`;
+      }
+
+      function animateTap(i) {
+        const circle = tiles.get(i)?.querySelector(".circle");
+        if (!circle) return;
+        circle.classList.remove("tap");
+        void circle.offsetWidth; // restart the animation
+        circle.classList.add("tap");
+      }
+
+      function formatTime(ms) {
+        if (ms === null) return "–";
+        const s = Math.floor(ms / 1000);
+        return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+      }
+
+      function updateStats(s) {
+        $("s-joined").textContent = s.joined;
+        $("s-active").textContent = s.active;
+        $("s-taps").textContent = s.taps;
+        $("s-confirmed").textContent = s.confirmed;
+        $("s-pending").textContent = s.pending;
+        $("s-offline").textContent = s.offline;
+        $("s-time").textContent = formatTime(s.runningFor);
+        const values = s.tapsPerSecond;
+        const max = Math.max(5, ...values);
+        const offset = 120 - values.length;
+        $("tps").innerHTML = values
+          .map((v, k) => {
+            const h = (v / max) * 10;
+            return `<rect x="${offset + k + 0.1}" y="${10 - h}" width="0.8" height="${h}" />`;
+          })
+          .join("");
+      }
+
+      function escapeHtml(text) {
+        return String(text).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      }
+
+      function showReport(r) {
+        if (!r) return;
+        const mark = (ok) =>
+          ok === null ? '<span class="mark unknown">?</span>' : ok ? '<span class="mark ok">✓</span>' : '<span class="mark bad">✗</span>';
+        const checks = r.checks
+          .map((c) => `<tr><td>${mark(c.ok)}${escapeHtml(c.label)}</td><td>${escapeHtml(c.detail)}</td></tr>`)
+          .join("");
+        const numbers = r.numbers
+          .map(([label, value]) => `<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`)
+          .join("");
+        const errors = r.phonesWithErrors.length
+          ? `<h2>Phones with errors</h2><table>${r.phonesWithErrors
+              .map((e) => `<tr><td>Phone #${e.i + 1}</td><td>${escapeHtml(e.error ?? "")}</td></tr>`)
+              .join("")}</table>`
+          : "";
+        $("report").innerHTML = `<h2>Report</h2><table>${checks}</table><h2>Numbers</h2><table>${numbers}</table>${errors}`;
+        $("report").hidden = false;
+        $("report").scrollIntoView({ behavior: "smooth" });
+      }
+
+      const events = new EventSource("/events");
+      events.addEventListener("snapshot", (e) => {
+        const data = JSON.parse(e.data);
+        $("title").textContent = `${data.config.phones} fake phones`;
+        $("url").textContent = data.config.audienceUrl;
+        buildGrid(data.phones);
+        setPhase(data.phase);
+        updateStats(data.stats);
+        showReport(data.report);
+      });
+      events.addEventListener("phone", (e) => updatePhone(JSON.parse(e.data)));
+      events.addEventListener("tap", (e) => animateTap(JSON.parse(e.data).i));
+      events.addEventListener("stats", (e) => updateStats(JSON.parse(e.data)));
+      events.addEventListener("phase", (e) => setPhase(JSON.parse(e.data).phase));
+      events.addEventListener("report", (e) => showReport(JSON.parse(e.data)));
+      events.onerror = () => {
+        $("hint").innerHTML = '<span class="disconnected">Lost connection to the test script (is it still running?)</span>';
+      };
+      events.onopen = () => {};
+
+      $("burst").addEventListener("click", () => fetch("/api/burst", { method: "POST" }));
+    </script>
+  </body>
+</html>

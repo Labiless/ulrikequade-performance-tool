@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import FullscreenButton from "./FullscreenButton";
 import "./globals.css";
 
 // Ulrike Quade Company brand fonts (same files as ulrikequade.nl)
@@ -26,7 +27,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${pano.variable} ${colroy.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <FullscreenButton />
+      </body>
     </html>
   );
 }
