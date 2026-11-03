@@ -1,0 +1,178 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.control input[type="number"] {
+  width: 120px;
+}
+
+/* Lo "stage" è sempre scuro: è uno schermo video, indipendente dal tema */
+.stage {
+  --stage-text: #f0efec;
+  --stage-text-secondary: #c3c2b7;
+  --stage-grid: rgba(240, 239, 236, 0.18);
+  --stage-series: #3987e5;
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  color: var(--stage-text);
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  cursor: pointer;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0 0 35% 0;
+  display: grid;
+  place-items: center;
+  color: var(--stage-text-secondary);
+  font-size: 15px;
+  padding: 16px;
+  text-align: center;
+}
+
+.playButton {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--stage-text);
+  border: 1px solid var(--stage-grid);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* Il grafico sta in sovraimpressione nella parte bassa del video e fa da timeline */
+.chart {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35%;
+  min-height: 120px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.35) 70%, transparent);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.grid {
+  stroke: var(--stage-grid);
+  stroke-width: 1;
+}
+
+.yLabel {
+  fill: var(--stage-text-secondary);
+  font-size: 11px;
+  text-anchor: end;
+  dominant-baseline: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.xLabel {
+  fill: var(--stage-text-secondary);
+  font-size: 11px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.line {
+  fill: none;
+  stroke: var(--stage-series);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.area {
+  fill: var(--stage-series);
+  fill-opacity: 0.25;
+}
+
+.playhead {
+  stroke: var(--stage-text);
+  stroke-width: 2;
+}
+
+.crosshair {
+  stroke: var(--stage-text-secondary);
+  stroke-width: 1;
+}
+
+.dot {
+  fill: var(--stage-series);
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: rgba(20, 20, 19, 0.95);
+  border: 1px solid var(--stage-grid);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.table {
+  font-size: 13px;
+}
+
+.table table {
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.table th,
+.table td {
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
