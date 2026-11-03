@@ -5,6 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -49,5 +50,9 @@ export const clicks = pgTable(
     clientTs: timestamp("client_ts", { withTimezone: true, precision: 3 }).notNull(),
     serverTs: timestamp("server_ts", { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
-  (t) => [index("clicks_show_ts_idx").on(t.showId, t.clientTs)],
+  (t) => [
+    index("clicks_show_ts_idx").on(t.showId, t.clientTs),
+    // Se un telefono reinvia lo stesso click (es. risposta persa per la rete), non viene duplicato
+    uniqueIndex("clicks_session_ts_uq").on(t.sessionId, t.clientTs),
+  ],
 );

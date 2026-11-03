@@ -5,11 +5,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 32px;
   padding: 16px;
   background: #000;
   color: #8a8984;
   text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .name {
@@ -19,6 +22,66 @@
 
 .status {
   margin: 0;
-  font-size: 13px;
-  color: #5f5e5a;
+  min-height: 2.8em;
+  max-width: 320px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #6f6e69;
+}
+
+.button {
+  position: relative;
+  width: min(72vw, 52dvh, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid #6f6e69;
+  background: #161615;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 80ms ease-out,
+    background-color 80ms ease-out,
+    border-color 300ms,
+    opacity 300ms;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.95);
+  background: #2a2a28;
+}
+
+.button:disabled {
+  border-color: #2a2a28;
+  background: #0a0a0a;
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Onda che parte dal bordo a ogni tocco: conferma visiva discreta */
+.pulse {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid #8a8984;
+  pointer-events: none;
+  animation: pulse 600ms ease-out forwards;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation-duration: 1ms;
+  }
 }

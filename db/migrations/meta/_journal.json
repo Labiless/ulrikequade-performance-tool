@@ -15,6 +15,13 @@
       "when": 1793709527098,
       "tag": "0001_outgoing_mister_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793710406707,
+      "tag": "0002_flawless_forgotten_one",
+      "breakpoints": true
     }
   ]
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { syncClock, type ClockSync } from "@/lib/clock";
+import { useWakeLock } from "@/lib/useWakeLock";
 import { startShow, stopShow } from "../../actions";
 import AudiencePanel from "./AudiencePanel";
 import styles from "./live.module.css";
@@ -70,21 +71,7 @@ export default function LiveControl({
   }, [sync]);
 
   // Tiene lo schermo acceso (questo dispositivo fa anche da ciak per la videocamera)
-  useEffect(() => {
-    let lock: WakeLockSentinel | null = null;
-    const request = () =>
-      navigator.wakeLock
-        ?.request("screen")
-        .then((l) => (lock = l))
-        .catch(() => {});
-    request();
-    const onVisible = () => document.visibilityState === "visible" && request();
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      document.removeEventListener("visibilitychange", onVisible);
-      lock?.release().catch(() => {});
-    };
-  }, []);
+  useWakeLock();
 
   const start = startedAt ?? plannedStart;
   const phase =

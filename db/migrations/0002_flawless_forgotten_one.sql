@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "clicks_session_ts_uq" ON "clicks" USING btree ("session_id","client_ts");
