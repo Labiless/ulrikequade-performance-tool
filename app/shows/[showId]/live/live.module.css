@@ -228,3 +228,44 @@
   padding: 16px 32px;
   font-size: 20px;
 }
+
+/* Editor for the audience-page text */
+.textEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.textInput {
+  width: 100%;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 8px;
+  border: 1px solid var(--live-border);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--live-text);
+}
+
+.textInput::placeholder {
+  color: var(--live-muted);
+}
+
+.textInput:focus {
+  outline: 1px solid var(--live-text);
+}
+
+.textActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

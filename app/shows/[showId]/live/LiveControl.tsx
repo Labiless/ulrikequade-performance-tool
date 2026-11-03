@@ -19,6 +19,7 @@ type Props = {
   audienceUrl: string;
   qrSvg: string;
   initialAudience: number;
+  initialAudienceText: string | null;
 };
 
 const COUNTDOWN_MS = 3000;
@@ -33,6 +34,7 @@ export default function LiveControl({
   audienceUrl,
   qrSvg,
   initialAudience,
+  initialAudienceText,
 }: Props) {
   const router = useRouter();
   const [sync, setSync] = useState<ClockSync | null>(null);
@@ -181,7 +183,13 @@ export default function LiveControl({
         </section>
 
         {phase !== "ended" && (
-          <AudiencePanel showId={showId} url={audienceUrl} qrSvg={qrSvg} initialCount={initialAudience} />
+          <AudiencePanel
+              showId={showId}
+              url={audienceUrl}
+              qrSvg={qrSvg}
+              initialCount={initialAudience}
+              initialText={initialAudienceText}
+            />
         )}
       </div>
 

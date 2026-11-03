@@ -11,7 +11,12 @@ async function Audience({ params }: { params: Promise<{ showId: string }> }) {
   if (!isUuid(showId)) notFound();
 
   const [show] = await db
-    .select({ id: shows.id, name: shows.name, startedAt: shows.startedAt, endedAt: shows.endedAt })
+    .select({
+      id: shows.id,
+      startedAt: shows.startedAt,
+      endedAt: shows.endedAt,
+      audienceText: shows.audienceText,
+    })
     .from(shows)
     .where(eq(shows.id, showId));
   if (!show) notFound();
@@ -19,7 +24,7 @@ async function Audience({ params }: { params: Promise<{ showId: string }> }) {
   return (
     <AudienceButton
       showId={show.id}
-      name={show.name}
+      audienceText={show.audienceText}
       startedAt={show.startedAt?.getTime() ?? null}
       endedAt={show.endedAt?.getTime() ?? null}
     />

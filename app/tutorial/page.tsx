@@ -90,6 +90,12 @@ export default function TutorialPage() {
             />
           </li>
           <li>
+            Check the <strong>text on the audience phones</strong>, under the QR code. It is the only text the audience
+            sees above the button (the show name is not shown). Edit it and press <Kbd>Save</Kbd>; leave it empty to
+            use the default, “Tap the button whenever you feel life”. Phones that already have the page open update
+            within a few seconds, so you can change it at any time, even during the show.
+          </li>
+          <li>
             Show the QR code to the audience. Click the QR code to open it full size in a new tab – useful on a second
             screen or a projector before the performance. The link under the QR code can be copied and shared too.
             <Shot src="04-qr.png" w={1280} h={800} caption="The QR code full size, ready for a second screen or a projector." />

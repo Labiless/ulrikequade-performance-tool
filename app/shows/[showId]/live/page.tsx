@@ -29,6 +29,7 @@ async function Live({ params }: { params: Promise<{ showId: string }> }) {
       audienceUrl={url}
       qrSvg={svg}
       initialAudience={audience}
+      initialAudienceText={show.audienceText}
     />
   );
 }

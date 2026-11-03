@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { audienceTextOrDefault } from "@/lib/audience-text";
 import { syncClock, type ClockSync } from "@/lib/clock";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { joinShow } from "../actions";
@@ -9,7 +10,7 @@ import styles from "./audience.module.css";
 
 type Props = {
   showId: string;
-  name: string;
+  audienceText: string | null;
   startedAt: number | null;
   endedAt: number | null;
 };
@@ -48,7 +49,12 @@ function joinOnce(showId: string, existing: string | null) {
   return request;
 }
 
-export default function AudienceButton({ showId, name, startedAt: initialStart, endedAt: initialEnd }: Props) {
+export default function AudienceButton({
+  showId,
+  audienceText: initialText,
+  startedAt: initialStart,
+  endedAt: initialEnd,
+}: Props) {
   const sessionKey = `session:${showId}`;
   const queueKey = `clicks:${showId}`;
 
@@ -56,6 +62,8 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
   const [joinError, setJoinError] = useState(false);
   const [startedAt, setStartedAt] = useState(initialStart);
   const [endedAt, setEndedAt] = useState(initialEnd);
+  // Instruction text, set from the control room (can change while the page is open)
+  const [audienceText, setAudienceText] = useState(initialText);
   const [sync, setSync] = useState<ClockSync | null>(null);
   const [now, setNow] = useState<number | null>(null);
   const [pulse, setPulse] = useState(0);
@@ -114,9 +122,14 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
       try {
         const res = await fetch(`/api/shows/${showId}/status`, { cache: "no-store" });
         if (!res.ok || cancelled) return;
-        const data = (await res.json()) as { startedAt: number | null; endedAt: number | null };
+        const data = (await res.json()) as {
+          startedAt: number | null;
+          endedAt: number | null;
+          audienceText: string | null;
+        };
         setStartedAt(data.startedAt);
         setEndedAt(data.endedAt);
+        setAudienceText(data.audienceText);
       } catch {
         // no network: try again on the next round
       }
@@ -198,12 +211,12 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
     flush();
   };
 
-  let message: string;
-  if (ended) message = "The performance has ended. Thank you!";
-  else if (joinError) message = "Connection failed. Please reload the page.";
-  else if (!sessionId || !sync) message = "Connecting…";
-  else if (!active) message = "The performance hasn't started yet";
-  else message = "Tap the circle whenever you perceive life on stage";
+  // Status line under the button: only when the button can't be used
+  let status = "";
+  if (ended) status = "The performance has ended. Thank you!";
+  else if (joinError) status = "Connection failed. Please reload the page.";
+  else if (!sessionId || !sync) status = "Connecting…";
+  else if (!active) status = "The performance hasn't started yet";
 
   return (
     <main className={styles.screen}>
@@ -215,7 +228,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
         className={`brand-logo-on-dark ${styles.logo}`}
         priority
       />
-      <p className={styles.name}>{name}</p>
+      <p className={styles.instruction}>{audienceTextOrDefault(audienceText)}</p>
 
       <button
         type="button"
@@ -229,7 +242,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
       </button>
 
       <p className={styles.status} role="status">
-        {message}
+        {status}
       </p>
     </main>
   );

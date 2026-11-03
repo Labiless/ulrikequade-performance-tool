@@ -5,6 +5,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { shows } from "@/db/schema";
+import { AUDIENCE_TEXT_MAX } from "@/lib/audience-text";
 import { isUuid } from "@/lib/uuid";
 
 export type CreateShowState = { error?: string };
@@ -44,4 +45,12 @@ export async function stopShow(showId: string, stopAt: number) {
     .update(shows)
     .set({ endedAt: trustedTime(stopAt, 10_000), isOpen: false })
     .where(and(eq(shows.id, showId), isNotNull(shows.startedAt), isNull(shows.endedAt)));
+}
+
+/** Sets the instruction shown on the audience page. Empty text = back to the default. */
+export async function updateAudienceText(showId: string, text: string) {
+  if (!isUuid(showId)) throw new Error("Invalid show");
+  const value = text.trim().slice(0, AUDIENCE_TEXT_MAX) || null;
+  await db.update(shows).set({ audienceText: value }).where(eq(shows.id, showId));
+  return value;
 }

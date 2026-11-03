@@ -22,10 +22,14 @@
   opacity: 0.45;
 }
 
-.name {
+/* The instruction set from the control room */
+.instruction {
   margin: 0;
-  font-family: var(--font-heading-stack);
-  font-size: 15px;
+  max-width: 320px;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #a8a8a8;
+  white-space: pre-line;
 }
 
 .status {

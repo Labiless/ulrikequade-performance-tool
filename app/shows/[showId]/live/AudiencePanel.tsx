@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AudienceTextEditor from "./AudienceTextEditor";
 import styles from "./live.module.css";
 
 type Props = {
@@ -8,12 +9,13 @@ type Props = {
   url: string;
   qrSvg: string;
   initialCount: number;
+  initialText: string | null;
 };
 
 const POLL_MS = 3000;
 
 /** QR + link for the audience and number of people joined (refreshed every 3 s). */
-export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Props) {
+export default function AudiencePanel({ showId, url, qrSvg, initialCount, initialText }: Props) {
   const [count, setCount] = useState(initialCount);
   const [copied, setCopied] = useState(false);
 
@@ -69,6 +71,8 @@ export default function AudiencePanel({ showId, url, qrSvg, initialCount }: Prop
           {copied ? "Copied ✓" : "Copy"}
         </button>
       </div>
+
+      <AudienceTextEditor showId={showId} initialText={initialText} />
     </aside>
   );
 }

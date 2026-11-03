@@ -17,6 +17,8 @@ export const shows = pgTable("shows", {
   // Server time at which the show started (end of the countdown) and ended.
   startedAt: timestamp("started_at", { withTimezone: true, precision: 3 }),
   endedAt: timestamp("ended_at", { withTimezone: true, precision: 3 }),
+  // Instruction shown on the audience page; null = default text (lib/audience-text.ts)
+  audienceText: text("audience_text"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
