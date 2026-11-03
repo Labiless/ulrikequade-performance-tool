@@ -13,6 +13,9 @@ export const shows = pgTable("shows", {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   isOpen: boolean("is_open").notNull().default(false),
+  // Ora del server in cui lo show è partito (fine del countdown) e terminato.
+  startedAt: timestamp("started_at", { withTimezone: true, precision: 3 }),
+  endedAt: timestamp("ended_at", { withTimezone: true, precision: 3 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

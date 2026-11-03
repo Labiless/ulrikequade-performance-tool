@@ -6,7 +6,13 @@ import styles from "./timeline.module.css";
 /** t = timestamp del click (ms epoch), s = indice della persona che ha cliccato */
 export type ClickPoint = { t: number; s: number };
 
-type Props = { clicks: ClickPoint[]; audience: number };
+type Props = {
+  clicks: ClickPoint[];
+  audience: number;
+  /** inizio/fine dello show (ora server, ms). null se lo show non è stato avviato dalla regia */
+  startedAt: number | null;
+  endedAt: number | null;
+};
 
 type Bin = { start: number; count: number; people: number };
 
@@ -14,7 +20,7 @@ const BIN_OPTIONS = [1, 2, 5, 10, 30];
 const TICK_STEPS = [5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
 const PAD = { top: 16, right: 12, bottom: 24, left: 36 };
 
-export default function ClickTimeline({ clicks, audience }: Props) {
+export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -57,12 +63,13 @@ export default function ClickTimeline({ clicks, audience }: Props) {
     return () => cancelAnimationFrame(raf);
   }, [playing]);
 
-  // Secondo 0 della timeline = primo click, spostato di offsetSec.
-  // (Quando avremo il ciak, qui useremo l'istante del lampo salvato sullo show.)
-  const firstClick = clicks[0]?.t ?? 0;
-  const lastClick = clicks[clicks.length - 1]?.t ?? 0;
-  const t0 = firstClick - offsetSec * 1000;
-  const durationSec = videoDuration ?? Math.max(binSec, (lastClick - t0) / 1000 + binSec);
+  // Riferimento = inizio dello show (il lampo bianco della regia), oppure il primo click
+  // se lo show non è stato avviato dalla regia. offsetSec = in quale secondo del video
+  // avviene il riferimento: il secondo 0 della timeline coincide con il secondo 0 del video.
+  const reference = startedAt ?? clicks[0]?.t ?? 0;
+  const end = endedAt ?? clicks[clicks.length - 1]?.t ?? reference;
+  const t0 = reference - offsetSec * 1000;
+  const durationSec = videoDuration ?? Math.max(binSec, (end - t0) / 1000 + binSec);
 
   const { bins, maxCount, outside } = useMemo(() => {
     const binMs = binSec * 1000;
@@ -163,7 +170,7 @@ export default function ClickTimeline({ clicks, audience }: Props) {
           </select>
         </label>
         <label className={styles.control}>
-          Primo click al secondo
+          {startedAt !== null ? "Lampo di inizio al secondo del video" : "Primo click al secondo del video"}
           <input
             type="number"
             step={0.04}

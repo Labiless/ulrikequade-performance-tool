@@ -4,13 +4,12 @@ import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { clicks, sessions, shows } from "@/db/schema";
+import { isUuid } from "@/lib/uuid";
 import ClickTimeline, { type ClickPoint } from "./ClickTimeline";
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
   const { showId } = await params;
-  if (!UUID_RE.test(showId)) notFound();
+  if (!isUuid(showId)) notFound();
 
   const [show] = await db.select().from(shows).where(eq(shows.id, showId));
   if (!show) notFound();
@@ -41,7 +40,12 @@ async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
       <p>
         {points.length} click · {audience} persone connesse
       </p>
-      <ClickTimeline clicks={points} audience={audience} />
+      <ClickTimeline
+        clicks={points}
+        audience={audience}
+        startedAt={show.startedAt?.getTime() ?? null}
+        endedAt={show.endedAt?.getTime() ?? null}
+      />
     </>
   );
 }
