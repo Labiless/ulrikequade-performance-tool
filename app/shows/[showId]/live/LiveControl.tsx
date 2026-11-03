@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { syncClock, type ClockSync } from "@/lib/clock";
 import { startShow, stopShow } from "../../actions";
+import AudiencePanel from "./AudiencePanel";
 import styles from "./live.module.css";
 
 type Props = {
@@ -12,13 +13,24 @@ type Props = {
   name: string;
   startedAt: number | null;
   endedAt: number | null;
+  audienceUrl: string;
+  qrSvg: string;
+  initialAudience: number;
 };
 
 const COUNTDOWN_MS = 3000;
 const FLASH_MS = 300;
 const RESYNC_MS = 5 * 60 * 1000;
 
-export default function LiveControl({ showId, name, startedAt, endedAt: savedEnd }: Props) {
+export default function LiveControl({
+  showId,
+  name,
+  startedAt,
+  endedAt: savedEnd,
+  audienceUrl,
+  qrSvg,
+  initialAudience,
+}: Props) {
   const router = useRouter();
   const [sync, setSync] = useState<ClockSync | null>(null);
   const [now, setNow] = useState<number | null>(null);
@@ -135,37 +147,43 @@ export default function LiveControl({ showId, name, startedAt, endedAt: savedEnd
         </button>
       </header>
 
-      <section className={styles.center}>
-        {phase === "idle" && (
-          <button
-            type="button"
-            className={styles.startButton}
-            onClick={onStart}
-            disabled={!sync || pending}
-          >
-            {sync ? "Start" : "Sincronizzo…"}
-          </button>
-        )}
+      <div className={styles.body}>
+        <section className={styles.center}>
+          {phase === "idle" && (
+            <button
+              type="button"
+              className={styles.startButton}
+              onClick={onStart}
+              disabled={!sync || pending}
+            >
+              {sync ? "Start" : "Sincronizzo…"}
+            </button>
+          )}
 
-        {phase === "countdown" && now !== null && start !== null && (
-          <div className={styles.countdown}>{Math.ceil((start - now) / 1000)}</div>
-        )}
+          {phase === "countdown" && now !== null && start !== null && (
+            <div className={styles.countdown}>{Math.ceil((start - now) / 1000)}</div>
+          )}
 
-        {(phase === "running" || phase === "ended") && now !== null && start !== null && (
-          <>
-            <div className={styles.label}>Durata show</div>
-            <div className={styles.stopwatch}>{formatDuration((endedAt ?? now) - start)}</div>
-          </>
-        )}
+          {(phase === "running" || phase === "ended") && now !== null && start !== null && (
+            <>
+              <div className={styles.label}>Durata show</div>
+              <div className={styles.stopwatch}>{formatDuration((endedAt ?? now) - start)}</div>
+            </>
+          )}
 
-        {phase === "ended" && (
-          <p className={styles.ended}>
-            Show concluso · <Link href={`/shows/${showId}`}>vai alla timeline dei click</Link>
-          </p>
-        )}
+          {phase === "ended" && (
+            <p className={styles.ended}>
+              Show concluso · <Link href={`/shows/${showId}`}>vai alla timeline dei click</Link>
+            </p>
+          )}
 
-        {error && <p className={styles.error}>{error}</p>}
-      </section>
+          {error && <p className={styles.error}>{error}</p>}
+        </section>
+
+        {phase !== "ended" && (
+          <AudiencePanel showId={showId} url={audienceUrl} qrSvg={qrSvg} initialCount={initialAudience} />
+        )}
+      </div>
 
       <footer className={styles.footer}>
         <div>

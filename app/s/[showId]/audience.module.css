@@ -1,0 +1,24 @@
+/* Pagina del pubblico: nera e poco luminosa, per non disturbare la sala */
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  background: #000;
+  color: #8a8984;
+  text-align: center;
+}
+
+.name {
+  margin: 0;
+  font-size: 15px;
+}
+
+.status {
+  margin: 0;
+  font-size: 13px;
+  color: #5f5e5a;
+}
