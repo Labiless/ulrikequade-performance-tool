@@ -117,3 +117,32 @@
 .faq code {
   font-size: 0.9em;
 }
+
+/* Screenshots of the real app */
+.figure {
+  margin: 16px 0 20px;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+}
+
+.figure figcaption {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Phone screenshots: narrow, like a phone held in the hand */
+.phone {
+  max-width: 240px;
+}
+
+.phone .image {
+  border-radius: 16px;
+}

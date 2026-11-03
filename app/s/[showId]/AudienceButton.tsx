@@ -34,6 +34,20 @@ function save(key: string, value: string) {
   } catch {}
 }
 
+// One join request per show per page load. Without this, React's development mode
+// (which runs effects twice) or a fast re-render would register the same phone twice.
+const joinRequests = new Map<string, Promise<string | null>>();
+
+function joinOnce(showId: string, existing: string | null) {
+  let request = joinRequests.get(showId);
+  if (!request) {
+    request = joinShow(showId, existing);
+    joinRequests.set(showId, request);
+    request.catch(() => joinRequests.delete(showId));
+  }
+  return request;
+}
+
 export default function AudienceButton({ showId, name, startedAt: initialStart, endedAt: initialEnd }: Props) {
   const sessionKey = `session:${showId}`;
   const queueKey = `clicks:${showId}`;
@@ -54,7 +68,7 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
   useEffect(() => {
     if (initialEnd !== null) return;
     let cancelled = false;
-    joinShow(showId, load(sessionKey))
+    joinOnce(showId, load(sessionKey))
       .then((id) => {
         if (cancelled || !id) return;
         save(sessionKey, id);

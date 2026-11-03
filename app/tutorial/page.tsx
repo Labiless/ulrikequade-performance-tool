@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import BrandHeader from "@/app/BrandHeader";
 import styles from "./tutorial.module.css";
@@ -75,18 +76,31 @@ export default function TutorialPage() {
             On the <Link href="/">home page</Link>, click <Kbd>+ New show</Kbd>, give the show a name (for example the
             city and date) and confirm. Create a new show for every performance: each one has its own QR code and its
             own data.
+            <Shot src="01-home.png" w={1280} h={560} caption="The home page: the list of shows and the New show button." />
+            <Shot src="02-new-show.png" w={1280} h={800} caption="Give the new show a name and confirm." />
           </li>
           <li>
             You land in the <strong>control room</strong>. Keep this page open on the device that will stay with the
             crew during the show (a laptop or tablet).
+            <Shot
+              src="03-control-room.png"
+              w={1280}
+              h={800}
+              caption="The control room before the show: the Start button, the people-joined counter, the QR code and the link to share."
+            />
           </li>
           <li>
             Show the QR code to the audience. Click the QR code to open it full size in a new tab – useful on a second
             screen or a projector before the performance. The link under the QR code can be copied and shared too.
+            <Shot src="04-qr.png" w={1280} h={800} caption="The QR code full size, ready for a second screen or a projector." />
           </li>
           <li>
             Watch the <strong>people joined</strong> counter go up as phones scan the code. People who arrive late can
             still scan it during the show.
+            <PhoneShot
+              src="05-audience-waiting.png"
+              caption="What the audience sees after scanning: the button is off until the show starts."
+            />
           </li>
         </ol>
         <Note>
@@ -121,6 +135,7 @@ export default function TutorialPage() {
           </li>
           <li>
             Press <Kbd>Start</Kbd>. A 3-2-1 countdown begins, then the screen flashes white and the stopwatch starts.
+            <Shot src="06-countdown.png" w={1280} h={800} caption="The countdown after pressing Start." />
           </li>
           <li>At the same moment, the round button on every audience phone becomes active.</li>
         </ol>
@@ -128,6 +143,12 @@ export default function TutorialPage() {
           The control room shows the show duration, the server time and the stop button. If the page is reloaded by
           mistake, the stopwatch resumes from the right point: the start is saved.
         </p>
+        <Shot
+          src="08-running.png"
+          w={1280}
+          h={800}
+          caption="During the show: show duration, server time and the Stop button."
+        />
       </section>
 
       <section id="during" className={styles.section}>
@@ -141,6 +162,7 @@ export default function TutorialPage() {
           </li>
           <li>Each phone is counted once, even if the page is reloaded.</li>
         </ul>
+        <PhoneShot src="07-audience-active.png" caption="An audience phone during the show, right after a tap." />
       </section>
 
       <section id="stop" className={styles.section}>
@@ -150,7 +172,10 @@ export default function TutorialPage() {
             At the end of the performance press <Kbd>Stop</Kbd> and confirm.{" "}
             <strong>A stopped show cannot be restarted.</strong>
           </li>
-          <li>The buttons on the audience phones turn off and show a thank-you message.</li>
+          <li>
+            The buttons on the audience phones turn off and show a thank-you message.
+            <PhoneShot src="09-audience-ended.png" caption="The audience page after the show has been stopped." />
+          </li>
           <li>You are taken straight to the click timeline of the show.</li>
         </ol>
       </section>
@@ -180,6 +205,12 @@ export default function TutorialPage() {
           <li>
             Stop on the first white frame and press <Kbd>Confirm show start</Kbd> (or Enter). The chart appears, lined
             up with the video.
+            <Shot
+              src="10-report-sync.png"
+              w={1280}
+              h={789}
+              caption="Sync mode, stopped on the white flash. The time shows exactly where you are in the video."
+            />
           </li>
         </ol>
         <p>
@@ -203,6 +234,12 @@ export default function TutorialPage() {
             <strong>Data table</strong>, below the video, lists every interval with at least one tap.
           </li>
         </ul>
+        <Shot
+          src="11-report-chart.png"
+          w={1280}
+          h={789}
+          caption="The synced report: hovering a peak shows the taps and the share of the audience in that interval."
+        />
       </section>
 
       <section id="troubleshooting" className={styles.section}>
@@ -232,6 +269,31 @@ export default function TutorialPage() {
         </dl>
       </section>
     </main>
+  );
+}
+
+function Shot({ src, w, h, caption }: { src: string; w: number; h: number; caption: string }) {
+  return (
+    <figure className={styles.figure}>
+      <Image
+        src={`/tutorial/${src}`}
+        alt={caption}
+        width={w}
+        height={h}
+        className={styles.image}
+        sizes="(max-width: 760px) 100vw, 728px"
+      />
+      <figcaption>{caption}</figcaption>
+    </figure>
+  );
+}
+
+function PhoneShot({ src, caption }: { src: string; caption: string }) {
+  return (
+    <figure className={`${styles.figure} ${styles.phone}`}>
+      <Image src={`/tutorial/${src}`} alt={caption} width={780} height={1688} className={styles.image} sizes="240px" />
+      <figcaption>{caption}</figcaption>
+    </figure>
   );
 }
 

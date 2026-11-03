@@ -7,7 +7,7 @@ export default function Digits({ value }: { value: string }) {
     <span aria-label={value}>
       {value.split("").map((ch, i) =>
         /\d/.test(ch) ? (
-          <span key={i} aria-hidden style={{ display: "inline-block", width: "0.62em", textAlign: "center" }}>
+          <span key={i} aria-hidden style={{ display: "inline-block", width: "1ch", textAlign: "center" }}>
             {ch}
           </span>
         ) : (
