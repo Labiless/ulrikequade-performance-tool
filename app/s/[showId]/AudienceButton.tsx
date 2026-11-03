@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { syncClock, type ClockSync } from "@/lib/clock";
 import { useWakeLock } from "@/lib/useWakeLock";
@@ -192,6 +193,14 @@ export default function AudienceButton({ showId, name, startedAt: initialStart, 
 
   return (
     <main className={styles.screen}>
+      <Image
+        src="/brand/uqc-logo-en.png"
+        alt="Ulrike Quade Company"
+        width={866}
+        height={240}
+        className={`brand-logo-on-dark ${styles.logo}`}
+        priority
+      />
       <p className={styles.name}>{name}</p>
 
       <button

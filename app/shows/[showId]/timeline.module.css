@@ -7,7 +7,7 @@
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 16px 24px;
   align-items: flex-end;
 }
 
@@ -15,8 +15,28 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 13px;
+  font-family: var(--font-heading-stack);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--text-secondary);
+}
+
+.control input,
+.control select {
+  font-family: var(--font-body-stack);
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.control input[type="number"],
+.control select {
+  padding: 6px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .control input[type="number"] {
@@ -25,16 +45,17 @@
 
 /* The "stage" is always dark: it is a video screen, regardless of theme */
 .stage {
-  --stage-text: #f0efec;
-  --stage-text-secondary: #c3c2b7;
-  --stage-grid: rgba(240, 239, 236, 0.18);
-  --stage-series: #3987e5;
+  --stage-text: #ffffff;
+  --stage-text-secondary: #b4b4b4;
+  --stage-grid: rgba(255, 255, 255, 0.18);
+  /* Monochrome like the brand: the data is white, the playhead is set apart by its shape */
+  --stage-series: #ffffff;
 
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   background: #000;
-  border-radius: 8px;
+  border-radius: 2px;
   overflow: hidden;
   color: var(--stage-text);
 }
@@ -65,9 +86,9 @@
   background: rgba(0, 0, 0, 0.6);
   color: var(--stage-text);
   border: 1px solid var(--stage-grid);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 6px 10px;
-  font: inherit;
+  font-family: var(--font-heading-stack);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
@@ -121,12 +142,16 @@
 
 .area {
   fill: var(--stage-series);
-  fill-opacity: 0.25;
+  fill-opacity: 0.18;
 }
 
 .playhead {
   stroke: var(--stage-text);
-  stroke-width: 2;
+  stroke-width: 1;
+}
+
+.playheadHead {
+  fill: var(--stage-text);
 }
 
 .crosshair {
@@ -143,9 +168,9 @@
 .tooltip {
   position: absolute;
   transform: translate(-50%, -100%);
-  background: rgba(20, 20, 19, 0.95);
+  background: rgba(0, 0, 0, 0.92);
   border: 1px solid var(--stage-grid);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 6px 8px;
   font-size: 12px;
   line-height: 1.4;
@@ -182,11 +207,13 @@
 }
 
 .secondaryButton {
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
+  font-family: var(--font-heading-stack);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 12px;
+  border-radius: 2px;
+  border: 1px solid var(--text-primary);
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
@@ -210,9 +237,9 @@
 .syncHint {
   background: rgba(0, 0, 0, 0.65);
   border: 1px solid var(--stage-grid);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   text-align: center;
   pointer-events: none;
@@ -237,7 +264,7 @@
 
 .syncSlider {
   width: 100%;
-  accent-color: var(--stage-series);
+  accent-color: #fff;
 }
 
 .syncButtons {
@@ -248,11 +275,11 @@
 }
 
 .syncButtons button {
-  font: inherit;
+  font-family: var(--font-heading-stack);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 2px;
   border: 1px solid var(--stage-grid);
   background: rgba(0, 0, 0, 0.5);
   color: var(--stage-text);
@@ -260,10 +287,10 @@
 }
 
 .syncTime {
-  min-width: 84px;
+  min-width: 96px;
   text-align: center;
-  font-size: 15px;
-  font-weight: 600;
+  font-family: var(--font-heading-stack);
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -272,8 +299,40 @@
 }
 
 .syncButtons .confirmButton {
-  background: var(--stage-series);
-  border-color: var(--stage-series);
-  color: #fff;
-  font-weight: 600;
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Custom file picker in the brand's outlined-button style */
+.fileButton {
+  position: relative;
+  display: inline-block;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 7px 12px;
+  border: 1px solid var(--text-primary);
+  border-radius: 2px;
+  color: var(--text-primary);
+  font-family: var(--font-body-stack);
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.fileButton:focus-within {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import { shows } from "@/db/schema";
+import BrandHeader from "./BrandHeader";
 import NewShowButton from "./shows/NewShowButton";
 import styles from "./shows/shows.module.css";
 
@@ -43,6 +44,7 @@ async function ShowList() {
 export default function Home() {
   return (
     <main className={styles.page}>
+      <BrandHeader />
       <div className={styles.titleRow}>
         <h1>Shows</h1>
         <NewShowButton />

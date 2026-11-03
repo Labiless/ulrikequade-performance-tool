@@ -12,8 +12,13 @@
   text-align: center;
 }
 
+.logo {
+  height: clamp(36px, 7dvh, 64px);
+  width: auto;
+}
+
 .qr {
-  width: min(90vw, 80dvh);
+  width: min(90vw, 68dvh);
   aspect-ratio: 1;
 }
 
@@ -25,13 +30,13 @@
 
 .name {
   margin: 0;
+  font-family: var(--font-heading-stack);
   font-size: clamp(18px, 3vw, 32px);
-  font-weight: 600;
 }
 
 .url {
   margin: 0;
   font-size: 14px;
-  color: #52514e;
+  color: #5f5f5f;
   word-break: break-all;
 }

@@ -8,15 +8,23 @@
   gap: 32px;
   padding: 16px;
   background: #000;
-  color: #8a8984;
+  color: #969696;
   text-align: center;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
 }
 
+/* Dimmed logo: present but not lighting up the auditorium */
+.logo {
+  height: 28px;
+  width: auto;
+  opacity: 0.45;
+}
+
 .name {
   margin: 0;
+  font-family: var(--font-heading-stack);
   font-size: 15px;
 }
 
@@ -26,7 +34,7 @@
   max-width: 320px;
   font-size: 14px;
   line-height: 1.4;
-  color: #6f6e69;
+  color: #6f6f6f;
 }
 
 .button {
@@ -34,8 +42,8 @@
   width: min(72vw, 52dvh, 320px);
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 2px solid #6f6e69;
-  background: #161615;
+  border: 2px solid #6f6f6f;
+  background: #111111;
   padding: 0;
   cursor: pointer;
   touch-action: manipulation;
@@ -49,11 +57,11 @@
 
 .button:active:not(:disabled) {
   transform: scale(0.95);
-  background: #2a2a28;
+  background: #2a2a2a;
 }
 
 .button:disabled {
-  border-color: #2a2a28;
+  border-color: #2a2a2a;
   background: #0a0a0a;
   opacity: 0.6;
   cursor: default;
@@ -64,7 +72,7 @@
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  border: 2px solid #8a8984;
+  border: 2px solid #969696;
   pointer-events: none;
   animation: pulse 600ms ease-out forwards;
 }

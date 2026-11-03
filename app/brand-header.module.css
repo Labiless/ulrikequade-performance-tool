@@ -1,0 +1,28 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.logoLink {
+  display: block;
+  line-height: 0;
+}
+
+.logo {
+  height: 44px;
+  width: auto;
+}
+
+.product {
+  font-family: var(--font-heading-stack);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+}

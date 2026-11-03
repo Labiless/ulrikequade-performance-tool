@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { syncClock, type ClockSync } from "@/lib/clock";
+import Digits from "@/lib/Digits";
 import { useWakeLock } from "@/lib/useWakeLock";
 import { startShow, stopShow } from "../../actions";
 import AudiencePanel from "./AudiencePanel";
@@ -125,10 +127,19 @@ export default function LiveControl({
   return (
     <main className={`${styles.screen} ${flash ? styles.flash : ""}`}>
       <header className={styles.header}>
-        <Link href="/" className={styles.back}>
-          ← Shows
+        <Link href="/" aria-label="All shows">
+          <Image
+            src="/brand/uqc-logo-en.png"
+            alt="Ulrike Quade Company"
+            width={866}
+            height={240}
+            className={`brand-logo-on-dark ${styles.logo}`}
+          />
         </Link>
         <span className={styles.name}>{name}</span>
+        <Link href="/" className={styles.back}>
+          All shows
+        </Link>
         <button type="button" className={styles.ghost} onClick={toggleFullscreen}>
           Full screen
         </button>
@@ -154,7 +165,9 @@ export default function LiveControl({
           {(phase === "running" || phase === "ended") && now !== null && start !== null && (
             <>
               <div className={styles.label}>Show duration</div>
-              <div className={styles.stopwatch}>{formatDuration((endedAt ?? now) - start)}</div>
+              <div className={styles.stopwatch}>
+                <Digits value={formatDuration((endedAt ?? now) - start)} />
+              </div>
             </>
           )}
 
@@ -175,7 +188,9 @@ export default function LiveControl({
       <footer className={styles.footer}>
         <div>
           <div className={styles.label}>Server time</div>
-          <div className={styles.clock}>{now !== null ? formatClock(now) : "--:--:--.-"}</div>
+          <div className={styles.clock}>
+            {now !== null ? <Digits value={formatClock(now)} /> : <span className={styles.sync}>Syncing…</span>}
+          </div>
           {sync && <div className={styles.sync}>synced ±{Math.round(sync.uncertainty)} ms</div>}
         </div>
 

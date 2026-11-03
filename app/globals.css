@@ -1,31 +1,52 @@
+/*
+ * Ulrike Quade Company brand: black & white, greys from ulrikequade.nl
+ * (#969696, #ebebeb, #f8f8f8), Pano Bold for headings, Colroy for text,
+ * underlined links.
+ */
 :root {
   color-scheme: light;
-  --surface: #fcfcfb;
-  --surface-2: #f0efec;
-  --border: #dcdbd6;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --accent: #2a78d6;
+  --surface: #ffffff;
+  --surface-2: #f8f8f8;
+  --border: #ebebeb;
+  --border-strong: #dadada;
+  --text-primary: #000000;
+  --text-secondary: #5f5f5f;
+  --text-muted: #969696;
+  /* "accent" = the brand's inverted block: black button, white text */
+  --accent: #000000;
+  --on-accent: #ffffff;
+  --danger: #cb2027;
+
+  --font-heading-stack: var(--font-heading), "Helvetica Neue", Arial, sans-serif;
+  --font-body-stack: var(--font-body), Georgia, "Times New Roman", serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --surface: #1a1a19;
-    --surface-2: #252524;
-    --border: #3a3a38;
-    --text-primary: #f0efec;
-    --text-secondary: #c3c2b7;
-    --accent: #3987e5;
+    --surface: #000000;
+    --surface-2: #111111;
+    --border: #222222;
+    --border-strong: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #b4b4b4;
+    --text-muted: #969696;
+    --accent: #ffffff;
+    --on-accent: #000000;
+    --danger: #e66767;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --surface: #1a1a19;
-  --surface-2: #252524;
-  --border: #3a3a38;
-  --text-primary: #f0efec;
-  --text-secondary: #c3c2b7;
-  --accent: #3987e5;
+  --surface: #000000;
+  --surface-2: #111111;
+  --border: #222222;
+  --border-strong: #3a3a3a;
+  --text-primary: #ffffff;
+  --text-secondary: #b4b4b4;
+  --text-muted: #969696;
+  --accent: #ffffff;
+  --on-accent: #000000;
+  --danger: #e66767;
 }
 
 * {
@@ -34,11 +55,48 @@
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-body-stack);
+  font-size: 16px;
+  line-height: 1.5;
   background: var(--surface);
   color: var(--text-primary);
 }
 
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  font-family: var(--font-heading-stack);
+}
+
 a {
-  color: var(--accent);
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The brand logo is black on white: invert it on dark backgrounds */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand-logo {
+    filter: invert(1);
+  }
+}
+:root[data-theme="dark"] .brand-logo {
+  filter: invert(1);
+}
+.brand-logo-on-dark {
+  filter: invert(1);
 }

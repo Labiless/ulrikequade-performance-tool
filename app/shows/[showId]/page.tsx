@@ -5,6 +5,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { clicks, sessions, shows } from "@/db/schema";
 import { isUuid } from "@/lib/uuid";
+import BrandHeader from "@/app/BrandHeader";
 import ClickTimeline, { type ClickPoint } from "./ClickTimeline";
 
 async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
@@ -36,8 +37,8 @@ async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
 
   return (
     <>
-      <h1>{show.name}</h1>
-      <p>
+      <h1 style={{ margin: "0 0 4px", fontSize: 32 }}>{show.name}</h1>
+      <p style={{ margin: "0 0 20px", color: "var(--text-secondary)" }}>
         {points.length} clicks · {audience} people joined
       </p>
       <ClickTimeline
@@ -53,8 +54,9 @@ async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
 
 export default function ShowPage(props: PageProps<"/shows/[showId]">) {
   return (
-    <main style={{ padding: "16px 16px 48px", maxWidth: 1400, margin: "0 auto" }}>
-      <p>
+    <main style={{ padding: "0 16px 48px", maxWidth: 1400, margin: "0 auto" }}>
+      <BrandHeader />
+      <p style={{ margin: "0 0 12px" }}>
         <Link href="/">← All shows</Link>
       </p>
       <Suspense fallback={<p>Loading…</p>}>

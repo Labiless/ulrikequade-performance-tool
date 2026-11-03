@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { eq } from "drizzle-orm";
@@ -19,6 +20,14 @@ async function BigQr({ params }: { params: Promise<{ showId: string }> }) {
 
   return (
     <main className={styles.screen}>
+      <Image
+        src="/brand/uqc-logo-en.png"
+        alt="Ulrike Quade Company"
+        width={866}
+        height={240}
+        className={styles.logo}
+        priority
+      />
       <div className={styles.qr} dangerouslySetInnerHTML={{ __html: svg }} />
       <p className={styles.name}>{show.name}</p>
       <p className={styles.url}>{url}</p>

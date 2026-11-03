@@ -37,6 +37,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
   // Sync mode: look for the show-start flash in the video
   const [syncing, setSyncing] = useState(false);
   const [videoKey, setVideoKey] = useState<string | null>(null);
+  const [videoName, setVideoName] = useState<string | null>(null);
   const pendingSeek = useRef<number | null>(null);
   const savedOffset = useRef<number | null>(null);
   // true if this video has already been synced (a new search can be cancelled)
@@ -100,6 +101,7 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
     } catch {}
     savedOffset.current = saved;
     setVideoKey(key);
+    setVideoName(file.name);
     setVideoUrl(URL.createObjectURL(file));
     setVideoDuration(null);
     setCurrentTime(0);
@@ -198,17 +200,21 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
   return (
     <section className={styles.wrapper}>
       <div className={styles.controls}>
-        <label className={styles.control}>
+        <div className={styles.control}>
           Performance video
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) onVideoFile(file);
-            }}
-          />
-        </label>
+          <label className={styles.fileButton}>
+            {videoName ?? "Choose video…"}
+            <input
+              type="file"
+              accept="video/*"
+              className={styles.fileInput}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onVideoFile(file);
+              }}
+            />
+          </label>
+        </div>
         {videoUrl && !syncing && (
           <button type="button" className={styles.secondaryButton} onClick={() => setSyncing(true)}>
             Re-sync video
@@ -314,13 +320,19 @@ export default function ClickTimeline({ showId, clicks, audience, startedAt, end
 
               {/* video playhead */}
               {videoUrl && (
-                <line
-                  x1={x(currentTime)}
-                  x2={x(currentTime)}
-                  y1={PAD.top}
-                  y2={PAD.top + plotH}
-                  className={styles.playhead}
-                />
+                <g>
+                  <line
+                    x1={x(currentTime)}
+                    x2={x(currentTime)}
+                    y1={PAD.top}
+                    y2={PAD.top + plotH}
+                    className={styles.playhead}
+                  />
+                  <path
+                    d={`M${x(currentTime) - 5},${PAD.top - 8}h10l-5,7z`}
+                    className={styles.playheadHead}
+                  />
+                </g>
               )}
 
               {/* crosshair */}

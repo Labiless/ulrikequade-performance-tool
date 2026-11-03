@@ -1,18 +1,16 @@
 /* Control-room screen: always dark, full screen, readable from a distance */
 .screen {
   --live-bg: #000;
-  --live-text: #f0efec;
-  --live-text-secondary: #c3c2b7;
-  --live-border: rgba(240, 239, 236, 0.25);
-  --live-start: #1baf7a;
-  --live-stop: #e34948;
+  --live-text: #fff;
+  --live-text-secondary: #b4b4b4;
+  --live-muted: #969696;
+  --live-border: rgba(255, 255, 255, 0.25);
 
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   background: var(--live-bg);
   color: var(--live-text);
-  font-variant-numeric: tabular-nums;
   padding: 16px;
 }
 
@@ -28,27 +26,40 @@
   gap: 16px;
 }
 
-.back {
-  color: var(--live-text-secondary);
-  text-decoration: none;
+.logo {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.flash .logo {
+  filter: none;
 }
 
 .name {
   flex: 1;
+  font-family: var(--font-heading-stack);
   font-size: 18px;
-  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.back {
+  color: var(--live-text-secondary);
+  font-size: 14px;
 }
 
 .ghost {
   background: transparent;
   color: var(--live-text-secondary);
   border: 1px solid var(--live-border);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 6px 10px;
-  font: inherit;
+  font-family: var(--font-heading-stack);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   cursor: pointer;
 }
 
@@ -82,8 +93,8 @@
 }
 
 .audienceCount {
-  font-size: 48px;
-  font-weight: 700;
+  font-family: var(--font-heading-stack);
+  font-size: 56px;
   line-height: 1;
 }
 
@@ -93,7 +104,7 @@
   width: 100%;
   aspect-ratio: 1;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 8px;
   cursor: zoom-in;
 }
@@ -113,11 +124,10 @@
 .linkInput {
   flex: 1;
   min-width: 0;
-  font: inherit;
   font-size: 12px;
   padding: 6px 8px;
   border: 1px solid var(--live-border);
-  border-radius: 6px;
+  border-radius: 2px;
   background: transparent;
   color: var(--live-text-secondary);
 }
@@ -133,43 +143,51 @@
 
 .startButton,
 .stopButton {
-  border: none;
-  border-radius: 999px;
-  color: #fff;
-  font: inherit;
-  font-weight: 700;
+  font-family: var(--font-heading-stack);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   cursor: pointer;
 }
 
+/* Start: white disc on black, like the brand's inverted blocks */
 .startButton {
-  background: var(--live-start);
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 50%;
   width: min(60vw, 280px);
   aspect-ratio: 1;
-  font-size: clamp(32px, 8vw, 56px);
+  padding: 0 24px;
+  font-size: clamp(24px, 5vw, 40px);
+}
+
+.startButton:disabled {
+  font-size: 16px;
 }
 
 .startButton:disabled,
 .stopButton:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: default;
 }
 
 .countdown {
+  font-family: var(--font-heading-stack);
   font-size: clamp(120px, 40vw, 320px);
-  font-weight: 700;
   line-height: 1;
 }
 
 .label {
-  font-size: 13px;
+  font-family: var(--font-heading-stack);
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--live-text-secondary);
+  letter-spacing: 0.1em;
+  color: var(--live-muted);
 }
 
 .stopwatch {
+  font-family: var(--font-heading-stack);
   font-size: clamp(56px, 14vw, 160px);
-  font-weight: 700;
   line-height: 1;
 }
 
@@ -177,12 +195,8 @@
   color: var(--live-text-secondary);
 }
 
-.ended a {
-  color: var(--live-text);
-}
-
 .error {
-  color: var(--live-stop);
+  color: #e66767;
 }
 
 .footer {
@@ -193,18 +207,22 @@
 }
 
 .clock {
+  font-family: var(--font-heading-stack);
   font-size: clamp(32px, 7vw, 72px);
-  font-weight: 600;
   line-height: 1.1;
 }
 
 .sync {
-  font-size: 12px;
-  color: var(--live-text-secondary);
+  font-size: 13px;
+  color: var(--live-muted);
 }
 
+/* Stop: outlined, so it doesn't compete with the stopwatch; confirmed by a dialog */
 .stopButton {
-  background: var(--live-stop);
-  padding: 18px 36px;
-  font-size: 22px;
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  padding: 16px 32px;
+  font-size: 20px;
 }
