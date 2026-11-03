@@ -54,3 +54,9 @@ export async function updateAudienceText(showId: string, text: string) {
   await db.update(shows).set({ audienceText: value }).where(eq(shows.id, showId));
   return value;
 }
+
+/** Deletes a show with all its sessions and clicks (cascade). Cannot be undone. */
+export async function deleteShow(showId: string) {
+  if (!isUuid(showId)) throw new Error("Invalid show");
+  await db.delete(shows).where(eq(shows.id, showId));
+}

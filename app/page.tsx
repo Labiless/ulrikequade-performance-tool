@@ -5,6 +5,7 @@ import { desc } from "drizzle-orm";
 import { db } from "@/db";
 import { shows } from "@/db/schema";
 import BrandHeader from "./BrandHeader";
+import DeleteShowButton from "./shows/DeleteShowButton";
 import NewShowButton from "./shows/NewShowButton";
 import styles from "./shows/shows.module.css";
 
@@ -33,6 +34,7 @@ async function ShowList() {
           <div className={styles.links}>
             <Link href={`/shows/${show.id}/live`}>Control room</Link>
             <Link href={`/shows/${show.id}`}>Click timeline</Link>
+            <DeleteShowButton showId={show.id} name={show.name} running={show.startedAt !== null && show.endedAt === null} />
           </div>
         </li>
       ))}
