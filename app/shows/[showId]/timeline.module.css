@@ -176,3 +176,104 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+.hidden {
+  display: none;
+}
+
+.secondaryButton {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* --- Modalità sincronizzazione --- */
+
+/* Strato sopra il video che riceve il trascinamento */
+.dragLayer {
+  position: absolute;
+  inset: 0 0 auto 0;
+  bottom: 96px;
+  cursor: ew-resize;
+  touch-action: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12px;
+}
+
+.syncHint {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--stage-grid);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  pointer-events: none;
+  max-width: calc(100% - 32px);
+}
+
+.syncHint small {
+  color: var(--stage-text-secondary);
+}
+
+.syncBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.5));
+}
+
+.syncSlider {
+  width: 100%;
+  accent-color: var(--stage-series);
+}
+
+.syncButtons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.syncButtons button {
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--stage-grid);
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--stage-text);
+  cursor: pointer;
+}
+
+.syncTime {
+  min-width: 84px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.syncSpacer {
+  flex: 1;
+}
+
+.syncButtons .confirmButton {
+  background: var(--stage-series);
+  border-color: var(--stage-series);
+  color: #fff;
+  font-weight: 600;
+}

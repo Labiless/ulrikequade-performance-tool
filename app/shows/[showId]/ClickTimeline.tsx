@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import styles from "./timeline.module.css";
+import VideoSync from "./VideoSync";
 
 /** t = timestamp del click (ms epoch), s = indice della persona che ha cliccato */
 export type ClickPoint = { t: number; s: number };
 
 type Props = {
+  showId: string;
   clicks: ClickPoint[];
   audience: number;
   /** inizio/fine dello show (ora server, ms). null se lo show non è stato avviato dalla regia */
@@ -20,7 +22,7 @@ const BIN_OPTIONS = [1, 2, 5, 10, 30];
 const TICK_STEPS = [5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
 const PAD = { top: 16, right: 12, bottom: 24, left: 36 };
 
-export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: Props) {
+export default function ClickTimeline({ showId, clicks, audience, startedAt, endedAt }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +34,13 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
   const [offsetSec, setOffsetSec] = useState(0);
   const [hoverBin, setHoverBin] = useState<number | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  // Modalità sincronizzazione: si cerca nel video il lampo di inizio show
+  const [syncing, setSyncing] = useState(false);
+  const [videoKey, setVideoKey] = useState<string | null>(null);
+  const pendingSeek = useRef<number | null>(null);
+  const savedOffset = useRef<number | null>(null);
+  // true se questo video è già stato sincronizzato (si può annullare una nuova ricerca)
+  const [hasSync, setHasSync] = useState(false);
 
   // Dimensioni del grafico (si adatta allo schermo)
   useEffect(() => {
@@ -62,6 +71,58 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing]);
+
+  // Sposta il video; se sta ancora cercando il fotogramma precedente, accoda l'ultima richiesta
+  const seekTo = useCallback((sec: number) => {
+    const v = videoRef.current;
+    if (!v) return;
+    const t = Math.min(Math.max(0, sec), v.duration || 0);
+    setCurrentTime(t);
+    if (v.seeking) pendingSeek.current = t;
+    else v.currentTime = t;
+  }, []);
+
+  const togglePlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) v.play();
+    else v.pause();
+  }, []);
+
+  const syncStorageKey = videoKey ? `videoSync:${showId}:${videoKey}` : null;
+
+  const onVideoFile = (file: File) => {
+    const key = `${file.name}:${file.size}`;
+    let saved: number | null = null;
+    try {
+      const raw = localStorage.getItem(`videoSync:${showId}:${key}`);
+      if (raw !== null && Number.isFinite(Number(raw))) saved = Number(raw);
+    } catch {}
+    savedOffset.current = saved;
+    setVideoKey(key);
+    setVideoUrl(URL.createObjectURL(file));
+    setVideoDuration(null);
+    setCurrentTime(0);
+    if (saved !== null) setOffsetSec(saved);
+    // Video già sincronizzato in passato su questo computer: si salta la ricerca del lampo
+    setHasSync(saved !== null);
+    setSyncing(saved === null);
+  };
+
+  const confirmSync = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.pause();
+    const t = Math.round(v.currentTime * 1000) / 1000;
+    setOffsetSec(t);
+    setHasSync(true);
+    setSyncing(false);
+    if (syncStorageKey) {
+      try {
+        localStorage.setItem(syncStorageKey, String(t));
+      } catch {}
+    }
+  }, [syncStorageKey]);
 
   // Riferimento = inizio dello show (il lampo bianco della regia), oppure il primo click
   // se lo show non è stato avviato dalla regia. offsetSec = in quale secondo del video
@@ -128,16 +189,7 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
     setHoverBin(Math.min(bins.length - 1, Math.floor(secFromPointer(e) / binSec)));
   };
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
-    const sec = secFromPointer(e);
-    if (videoRef.current) videoRef.current.currentTime = sec;
-    setCurrentTime(sec);
-  };
-
-  const togglePlay = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.paused) v.play();
-    else v.pause();
+    seekTo(secFromPointer(e));
   };
 
   const hovered = hoverBin !== null ? bins[hoverBin] : null;
@@ -153,12 +205,15 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
             accept="video/*"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (!file) return;
-              setVideoUrl(URL.createObjectURL(file));
-              setCurrentTime(0);
+              if (file) onVideoFile(file);
             }}
           />
         </label>
+        {videoUrl && !syncing && (
+          <button type="button" className={styles.secondaryButton} onClick={() => setSyncing(true)}>
+            Risincronizza video
+          </button>
+        )}
         <label className={styles.control}>
           Intervallo
           <select value={binSec} onChange={(e) => setBinSec(Number(e.target.value))}>
@@ -170,7 +225,7 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
           </select>
         </label>
         <label className={styles.control}>
-          {startedAt !== null ? "Lampo di inizio al secondo del video" : "Primo click al secondo del video"}
+          {startedAt !== null ? "Inizio show al secondo del video" : "Primo click al secondo del video"}
           <input
             type="number"
             step={0.04}
@@ -186,10 +241,21 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
             ref={videoRef}
             className={styles.video}
             src={videoUrl}
-            onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration)}
+            onLoadedMetadata={(e) => {
+              setVideoDuration(e.currentTarget.duration);
+              // Video già sincronizzato: parte dall'inizio dello show
+              if (savedOffset.current !== null) seekTo(savedOffset.current);
+            }}
             onPlay={() => setPlaying(true)}
             onPause={() => setPlaying(false)}
-            onSeeked={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            onSeeked={(e) => {
+              if (pendingSeek.current !== null) {
+                e.currentTarget.currentTime = pendingSeek.current;
+                pendingSeek.current = null;
+              } else if (!syncing) {
+                setCurrentTime(e.currentTarget.currentTime);
+              }
+            }}
             onClick={togglePlay}
             playsInline
           />
@@ -197,7 +263,19 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
           <div className={styles.placeholder}>Carica il video della performance per vederlo qui</div>
         )}
 
-        {videoUrl && (
+        {videoUrl && syncing && (
+          <VideoSync
+            currentTime={currentTime}
+            duration={videoDuration ?? 0}
+            playing={playing}
+            onSeek={seekTo}
+            onTogglePlay={togglePlay}
+            onConfirm={confirmSync}
+            onCancel={hasSync ? () => setSyncing(false) : undefined}
+          />
+        )}
+
+        {videoUrl && !syncing && (
           <button type="button" className={styles.playButton} onClick={togglePlay}>
             {playing ? "❚❚ Pausa" : "▶ Play"} · {formatTime(currentTime)} / {formatTime(durationSec)}
           </button>
@@ -205,7 +283,7 @@ export default function ClickTimeline({ clicks, audience, startedAt, endedAt }: 
 
         <div
           ref={chartRef}
-          className={styles.chart}
+          className={`${styles.chart} ${syncing ? styles.hidden : ""}`}
           onPointerMove={onPointerMove}
           onPointerLeave={() => setHoverBin(null)}
           onPointerDown={onPointerDown}

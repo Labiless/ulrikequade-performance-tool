@@ -41,6 +41,7 @@ async function ShowView({ params }: { params: Promise<{ showId: string }> }) {
         {points.length} click · {audience} persone connesse
       </p>
       <ClickTimeline
+        showId={show.id}
         clicks={points}
         audience={audience}
         startedAt={show.startedAt?.getTime() ?? null}
